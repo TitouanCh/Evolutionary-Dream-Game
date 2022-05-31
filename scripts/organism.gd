@@ -7,6 +7,8 @@ var accel = 10
 var friction = 0.95
 var once = false
 
+var belly = 0
+
 var type
 
 var scaleInfo = [-1, -1]

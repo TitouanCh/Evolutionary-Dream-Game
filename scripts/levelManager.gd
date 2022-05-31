@@ -8,6 +8,10 @@ var food = []
 var foodSprites = [0]
 var foodText = preload("res://sprites/16Circle.png")
 
+var debris = []
+var debrisSprites = [0]
+var debrisText = preload("res://sprites/1Pixel.png")
+
 var palette = [Color(255), Color(255), Color(255), Color(255)]
 
 var explosionSystems = [0]
@@ -18,13 +22,26 @@ var npc = []
 var npcInstances = [0]
 var npcScene = preload("res://scenes/npc.tscn")
 
+var currents = []
+var currents_resolution = 64
+var current_force = 40
+
+var big_distance = 524288
+var small_distance = 512
+
+func _ready():
+	currents = make_currents(512)
+
 func _once():
 	setup_food_sprites(64, foodText)
+	setup_debris_sprites(128, debrisText)
 	setup_explosion_systems(8)
 	setup_npcs(8)
 	
-	spawn_food_randomly(600, food, Vector2(-6000, 6000), Vector2(6000, -6000))
-	spawn_npcs_randomly(100, npc, Vector2(-6000, 6000), Vector2(6000, -6000))
+	spawn_food_randomly(600, food, Vector2(0, 16384), Vector2(0, 16384))
+	spawn_npcs_randomly(100, npc, Vector2(0, 16384), Vector2(0, 16384))
+	
+	spawn_debris(420, debris, Vector2(0, 200), Vector2(0, 200))
 
 func _process(delta):
 	if !once:
@@ -32,6 +49,11 @@ func _process(delta):
 		once = true
 	handle_food(delta, food)
 	handle_npc(delta)
+	handle_debris(delta, debris)
+	
+	player.linear_velocity += get_current(currents, currents_resolution, player.position) * current_force * delta
+	
+	update()
 
 func setup_food_sprites(n, text):
 	for i in range(n):
@@ -40,6 +62,15 @@ func setup_food_sprites(n, text):
 		a.texture = text
 		a.visible = false
 		foodSprites.append(a)
+		a.modulate = palette[1]
+
+func setup_debris_sprites(n, text):
+	for i in range(n):
+		var a = Sprite.new()
+		self.add_child(a)
+		a.texture = text
+		a.visible = false
+		debrisSprites.append(a)
 		a.modulate = palette[2]
 
 func setup_explosion_systems(n):
@@ -60,18 +91,19 @@ func setup_npcs(n):
 func handle_food(d, f):
 	var idx_remove_list = []
 	for i in range(len(f)):
+		f[i] += get_current(currents, currents_resolution, f[i]) * current_force * d
 		for w in range(len(npcInstances)):
 			var entity = player
 			if w > 0:
 				entity = npcInstances[w]
 			var distance = f[i].distance_squared_to(entity.position)
-			if  distance < 262144:
+			if  distance < big_distance:
 				foodSprites[foodSprites[0] + 1].visible = true
 				foodSprites[foodSprites[0] + 1].position = f[i]
 				foodSprites[0] += 1
 				if foodSprites[0] == len(foodSprites) - 1:
 					foodSprites[0] = 0
-			if distance < 256:
+			if distance < small_distance:
 				explosionSystems[explosionSystems[0] + 1].position = f[i]
 				explosionSystems[explosionSystems[0] + 1].emitting = true
 				explosionSystems[explosionSystems[0] + 1].process_material.set_shader_param("impact", entity.linear_velocity)
@@ -79,8 +111,8 @@ func handle_food(d, f):
 				for j in range(1, len(foodSprites)):
 					if foodSprites[j].position == f[i]:
 						foodSprites[j].visible = false
-				f[i] = null
 				idx_remove_list.append(i)
+				entity.belly += 1
 				explosionSystems[0] += 1
 				if explosionSystems[0] == len(explosionSystems) - 1:
 					explosionSystems[0] = 0
@@ -89,10 +121,36 @@ func handle_food(d, f):
 	for i in idx_remove_list:
 		f.remove(i)
 
+func handle_debris(d, f):
+	for i in range(len(f)):
+		
+		f[i] += get_current(currents, currents_resolution, f[i]) * current_force * d * 6
+		f[i] += Vector2(randf() * 3 - 1.5, randf() * 3 - 1.5)
+		
+		var distance = f[i].distance_squared_to(player.position)
+		
+		if  distance < big_distance:
+			debrisSprites[debrisSprites[0] + 1].visible = true
+			debrisSprites[debrisSprites[0] + 1].position = f[i]
+			debrisSprites[0] += 1
+			if debrisSprites[0] == len(debrisSprites) - 1:
+				debrisSprites[0] = 0
+		else:
+			f[i] = Vector2(randf() * 4000 - 2000 + player.position.x, randf() * 4000 - 2000 + player.position.y)
+
 func spawn_food_randomly(n, f, xbor, ybor):
 	for i in range(n):
 		randomize()
 		f.append(Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))))
+
+func spawn_debris(n, f, xbor, ybor):
+	for i in range(n):
+		randomize()
+		f.append(Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))))
+
+func delete_debris(n, f):
+	for i in range(n):
+		f.remove(0)
 
 func spawn_npcs_randomly(n, f, xbor, ybor):
 	for i in range(n):
@@ -123,6 +181,7 @@ func handle_npc(delta):
 						closest_food = food[j]
 						smallest_distance = dist
 				npcInstances[npc[i][3]].target = closest_food
+				npcInstances[npc[i][3]].linear_velocity += get_current(currents, currents_resolution, npcInstances[npc[i][3]].position) * current_force * delta
 		else:
 			npc[i][0] += Vector2(randf()-0.5, randf()-0.5) * delta * 10
 
@@ -130,7 +189,65 @@ func recolor(p):
 	palette = p
 	for i in range(1, len(foodSprites)):
 		foodSprites[i].modulate = p[2]
+	for i in range(1, len(debrisSprites)):
+		debrisSprites[i].modulate = p[1]
 	for i in range(1, len(explosionSystems)):
 		explosionSystems[i].modulate = p[2]
 	for i in range(1, len(npcInstances)):
 		OrganismUtilities.recolor(npcInstances[i], p, npcInstances[i].body_sprite, npcInstances[i].neutral_sprites, npcInstances[i].tail)
+
+func make_currents(size = 10):
+	var currents_table = []
+	
+	for i in range(size):
+		var r = []
+		for j in range(size):
+			r.append(Vector2.ZERO)
+		currents_table.append(r)
+	
+	var noise = OpenSimplexNoise.new()
+	
+	# Configure
+	noise.seed = randi()
+	noise.octaves = 4
+	noise.period = 20.0
+	noise.persistence = 0.8
+	
+	var noise_image = noise.get_image(size, size)
+	
+	for y in range(size):
+		for x in range(size):
+			currents_table[y][x].x = noise.get_noise_2d(x, y)
+			currents_table[y][x].y = noise.get_noise_3d(x, 0, y)
+	
+	return currents_table
+
+func get_current(c, r, pos):
+	var a2 = int(pos.x) % r + (pos.x - int(pos.x))
+	var a1 = r - a2
+#
+#	var x = c[floor(pos.x/r)].x * a1 + c[ceil(pos.x/r)].x * a2
+	
+	var b2 = int(pos.y) % r + (pos.y - int(pos.y))
+	var b1 = r - b2
+	
+#	var y = c[floor(pos.y/r)].y * b1 + c[ceil(pos.y/r)].y * b2
+	
+	var v1 = c[floor(pos.y/r)][floor(pos.x/r)] * (b1 + a1)
+	var v2 = c[ceil(pos.y/r)][floor(pos.x/r)] * (b2 + a1)
+	var v3 = c[floor(pos.y/r)][ceil(pos.x/r)] * (b1 + a2)
+	var v4 = c[ceil(pos.y/r)][ceil(pos.x/r)] * (b2 + a2)
+	
+	return (v1 + v2 + v3 + v4) / (b1 + b1 + b2 + b2 + a1 + a1 + a2 + a2)
+
+func draw_currents(c, r):
+	for y in range(len(currents)):
+		for x in range(len(currents[y])):
+			if Vector2(x * r, y * r).distance_squared_to(player.position) < 262144:
+				draw_line(Vector2(x, y) * r, (Vector2(x, y) + currents[y][x]) * r, palette[1])
+	
+	draw_line(player.position, player.position + get_current(currents, currents_resolution, player.position) * current_force, palette[1])
+
+func _draw():
+#	draw_currents(currents, currents_resolution)
+	pass
