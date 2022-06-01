@@ -1,6 +1,7 @@
 extends AnimatedSprite
 
 onready var player = get_parent().get_node("player")
+onready var cursor = get_parent().get_node("cursor")
 
 var current_value = 0
 var increment = 32
@@ -26,3 +27,11 @@ func _on_evolve_text_animation_finished():
 	if self.animation == "transition":
 		self.animation = "complete"
 		self.playing = true
+
+
+func _on_evolve_button_mouse_entered():
+	if self.animation == "complete" or self.animation == "transition":
+		cursor.change_cursor(0)
+
+func _on_evolve_button_mouse_exited():
+	cursor.change_cursor(1)
