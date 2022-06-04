@@ -44,16 +44,17 @@ func _once():
 	spawn_debris(420, debris, Vector2(0, 200), Vector2(0, 200))
 
 func _process(delta):
-	if !once:
-		_once()
-		once = true
-	handle_food(delta, food)
-	handle_npc(delta)
-	handle_debris(delta, debris)
-	
-	player.linear_velocity += get_current(currents, currents_resolution, player.position) * current_force * delta
-	
-	update()
+	if !Global.paused:
+		if !once:
+			_once()
+			once = true
+		handle_food(delta, food)
+		handle_npc(delta)
+		handle_debris(delta, debris)
+		
+		player.linear_velocity += get_current(currents, currents_resolution, player.position) * current_force * delta
+		
+		update()
 
 func setup_food_sprites(n, text):
 	for i in range(n):
@@ -160,7 +161,7 @@ func spawn_npcs_randomly(n, f, xbor, ybor):
 func handle_npc(delta):
 	for i in range(len(npc)):
 		var distance = npc[i][0].distance_squared_to(player.position)
-		if  distance < 262144 and !npc[i][3]:
+		if  distance < big_distance and !npc[i][3]:
 			for j in range(1, len(npcInstances)):
 				if !npcInstances[j].active: npcInstances[0] = j
 			npcInstances[npcInstances[0]].position = npc[i][0]
@@ -168,13 +169,13 @@ func handle_npc(delta):
 			npcInstances[npcInstances[0]].set_active(true)
 			npc[i][3] = npcInstances[0]
 		elif npc[i][3]:
-			if npcInstances[npc[i][3]].position.distance_squared_to(player.position) > 262144:
+			if npcInstances[npc[i][3]].position.distance_squared_to(player.position) > big_distance:
 				npc[i][0] = npcInstances[npc[i][3]].position
 				npcInstances[npc[i][3]].set_active(false)
 				npc[i][3] = 0
 			else:
 				var closest_food = Vector2.ZERO
-				var smallest_distance = 262144*2*2
+				var smallest_distance = big_distance*2*2
 				for j in range(len(food)):
 					var dist = food[j].distance_squared_to(npcInstances[npc[i][3]].position)
 					if dist < smallest_distance:

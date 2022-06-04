@@ -3,7 +3,9 @@
 [ext_resource path="res://fonts/cell_font.ttf" type="DynamicFontData" id=1]
 
 [sub_resource type="DynamicFont" id=3]
-extra_spacing_top = 20
+size = 8
+extra_spacing_top = 10
+extra_spacing_char = 1
 font_data = ExtResource( 1 )
 
 [resource]

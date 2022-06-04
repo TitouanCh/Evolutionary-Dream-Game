@@ -2,6 +2,29 @@ extends Reference
 
 class_name OrganismUtilities
 
+# DNA Functions ---
+
+static func read_gene(dna, gene):
+	var a = len(gene)
+	for i in range(len(dna) - a + 1):
+		var possible_gene = ""
+		for j in range(a):
+			possible_gene += dna[i + j]
+		if possible_gene == gene:
+			return true
+	return false
+
+static func count_gene(dna, gene):
+	var a = len(gene)
+	var count = 0
+	for i in range(len(dna) - a + 1):
+		var possible_gene = ""
+		for j in range(a):
+			possible_gene += dna[i + j]
+		if possible_gene == gene:
+			count += 1
+	return count
+
 # Create Functions ---
 
 static func create_tail_obj(this, tail_list, img, rotateMode):
