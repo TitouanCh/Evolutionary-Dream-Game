@@ -60,6 +60,7 @@ default_font = SubResource( 3 )
 [node name="main" type="Node2D"]
 
 [node name="evolve_text" type="AnimatedSprite" parent="."]
+modulate = Color( 0.945098, 0.909804, 0.721569, 1 )
 position = Vector2( 3000, 3388 )
 frames = SubResource( 2 )
 animation = "regular"

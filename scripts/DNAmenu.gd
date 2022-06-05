@@ -3,6 +3,7 @@ extends Node2D
 onready var player = get_parent().get_node("player")
 onready var cursor = get_parent().get_node("cursor")
 onready var evolve_text = get_parent().get_node("evolve_text")
+onready var levelManager = get_parent().get_node("levelManager")
 
 onready var upgrades = [$upgrade1, $upgrade2, $upgrade3]
 onready var dnaline = $DNALine
@@ -35,5 +36,7 @@ func upgrade_player(dna):
 	yield(get_tree().create_timer(1), "timeout")
 	Global.paused = false
 	self.visible = false
-	
+	cursor.change_cursor(1)
 	evolve_text.reset()
+	
+	levelManager.progress(1)

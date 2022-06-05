@@ -17,7 +17,7 @@ var palette = [Color(255), Color(255), Color(255), Color(255)]
 var explosionSystems = [0]
 var explosionScene = preload("res://scenes/explosionParticleSystem.tscn")
 
-# npc format, [position, specie, behavior, loaded]
+# npc format, [position, dna, behavior, loaded]
 var npc = []
 var npcInstances = [0]
 var npcScene = preload("res://scenes/npc.tscn")
@@ -25,6 +25,7 @@ var npcScene = preload("res://scenes/npc.tscn")
 var currents = []
 var currents_resolution = 64
 var current_force = 40
+var depth = 0
 
 var big_distance = 524288
 var small_distance = 512
@@ -39,9 +40,20 @@ func _once():
 	setup_npcs(8)
 	
 	spawn_food_randomly(600, food, Vector2(0, 16384), Vector2(0, 16384))
-	spawn_npcs_randomly(100, npc, Vector2(0, 16384), Vector2(0, 16384))
+	spawn_npcs_randomly(100, npc, Vector2(0, 16384), Vector2(0, 16384), "agccgtt")
+	spawn_npcs_randomly(10, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaatt")
 	
 	spawn_debris(420, debris, Vector2(0, 200), Vector2(0, 200))
+
+func progress(n):
+	depth += n
+	if depth == 1:
+		spawn_npcs_randomly(100, npc, Vector2(0, 16384), Vector2(0, 16384), "agccgtt")
+		spawn_npcs_randomly(10, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaatt")
+	if depth == 3:
+		spawn_food_randomly(600, food, Vector2(0, 16384), Vector2(0, 16384))
+	if depth == 4:
+		spawn_npcs_randomly(60, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaatt")
 
 func _process(delta):
 	if !Global.paused:
@@ -49,11 +61,10 @@ func _process(delta):
 			_once()
 			once = true
 		handle_food(delta, food)
-		handle_npc(delta)
+		handle_npc(delta, npc, food)
 		handle_debris(delta, debris)
 		
 		player.linear_velocity += get_current(currents, currents_resolution, player.position) * current_force * delta
-		
 		update()
 
 func setup_food_sprites(n, text):
@@ -87,7 +98,7 @@ func setup_npcs(n):
 		self.add_child(a)
 		npcInstances.append(a)
 		a.set_active(false)
-		OrganismUtilities.recolor(a, palette, a.body_sprite, a.neutral_sprites, a.tail)
+		OrganismUtilities.recolor(a, palette, a.body_sprite, a.neutral_sprites, a.tail, a.fangs)
 
 func handle_food(d, f):
 	var idx_remove_list = []
@@ -114,6 +125,7 @@ func handle_food(d, f):
 						foodSprites[j].visible = false
 				idx_remove_list.append(i)
 				entity.belly += 1
+				entity.fang_speed += 40
 				explosionSystems[0] += 1
 				if explosionSystems[0] == len(explosionSystems) - 1:
 					explosionSystems[0] = 0
@@ -144,6 +156,9 @@ func spawn_food_randomly(n, f, xbor, ybor):
 		randomize()
 		f.append(Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))))
 
+func spawn_food(pos, f):
+	f.append(pos)
+
 func spawn_debris(n, f, xbor, ybor):
 	for i in range(n):
 		randomize()
@@ -153,17 +168,21 @@ func delete_debris(n, f):
 	for i in range(n):
 		f.remove(0)
 
-func spawn_npcs_randomly(n, f, xbor, ybor):
+func spawn_npcs_randomly(n, f, xbor, ybor, dna):
 	for i in range(n):
 		randomize()
-		f.append([Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))), "mimi", "b", 0])
+		f.append([Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))), dna, "b", 0])
 
-func handle_npc(delta):
+func handle_npc(delta, npc, food):
+	var idx_remove_list = []
+	
 	for i in range(len(npc)):
 		var distance = npc[i][0].distance_squared_to(player.position)
 		if  distance < big_distance and !npc[i][3]:
 			for j in range(1, len(npcInstances)):
 				if !npcInstances[j].active: npcInstances[0] = j
+			npcInstances[npcInstances[0]].DNA = npc[i][1]
+			npcInstances[npcInstances[0]]._once()
 			npcInstances[npcInstances[0]].position = npc[i][0]
 			npcInstances[npcInstances[0]].rotation = randf() * PI * 2
 			npcInstances[npcInstances[0]].set_active(true)
@@ -183,8 +202,22 @@ func handle_npc(delta):
 						smallest_distance = dist
 				npcInstances[npc[i][3]].target = closest_food
 				npcInstances[npc[i][3]].linear_velocity += get_current(currents, currents_resolution, npcInstances[npc[i][3]].position) * current_force * delta
+				
+				if npcInstances[npc[i][3]].dead:
+					idx_remove_list.append(i)
+					for w in range(5):
+						explosionSystems[explosionSystems[0] + 1].position = npcInstances[npc[i][3]].position
+						explosionSystems[explosionSystems[0] + 1].emitting = true
+						explosionSystems[explosionSystems[0] + 1].process_material.set_shader_param("impact", npcInstances[npc[i][3]].linear_velocity)
+					for z in range(npcInstances[npc[i][3]].belly + 2):
+						spawn_food(npcInstances[npc[i][3]].position + Vector2(randf() * 32 - 16, randf() * 64 - 16), food)
+					npcInstances[npc[i][3]].set_active(false)
+				
 		else:
 			npc[i][0] += Vector2(randf()-0.5, randf()-0.5) * delta * 10
+	
+	for i in idx_remove_list:
+		npc.remove(i)
 
 func recolor(p):
 	palette = p
@@ -195,7 +228,7 @@ func recolor(p):
 	for i in range(1, len(explosionSystems)):
 		explosionSystems[i].modulate = p[2]
 	for i in range(1, len(npcInstances)):
-		OrganismUtilities.recolor(npcInstances[i], p, npcInstances[i].body_sprite, npcInstances[i].neutral_sprites, npcInstances[i].tail)
+		OrganismUtilities.recolor(npcInstances[i], p, npcInstances[i].body_sprite, npcInstances[i].neutral_sprites, npcInstances[i].tail, npcInstances[i].fangs)
 
 func make_currents(size = 10):
 	var currents_table = []

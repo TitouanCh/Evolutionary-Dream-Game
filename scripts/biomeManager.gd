@@ -14,7 +14,7 @@ func set_background_color(p):
 	VisualServer.set_default_clear_color(p[0])
 
 func establish_palette():
-	OrganismUtilities.recolor(player, current_palette, player.body_sprite, player.neutral_sprites, player.tail)
+	OrganismUtilities.recolor(player, current_palette, player.body_sprite, player.neutral_sprites, player.tail, player.fangs)
 	cursor.recolor(current_palette)
 	levelManager.recolor(current_palette)
 	set_background_color(current_palette)

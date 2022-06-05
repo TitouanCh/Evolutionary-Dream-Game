@@ -9,6 +9,12 @@ var accel = 10
 var friction = 0.95
 var once = false
 
+var health = 100
+var dead = false
+var set_health = health
+var armor = 0
+var attack = 10
+
 var belly = 0
 
 var type
@@ -33,6 +39,15 @@ var tail = []
 # whisker object format : [[points], [Velocities], function]
 var whiskers = []
 
+# fang object format : [Sprite]
+var fang_speed = 1
+var fang_Ttime = 0
+var base_fang_speed = 1
+var fangs = []
+
+# hurt zones
+var hurt_zones = []
+
 func set_active(state):
 	active = state
 	self.visible = state
@@ -48,10 +63,37 @@ func reset():
 		s.queue_free()
 	neutral_sprites = []
 	belly = 0
+
+	for f in fangs:
+		f.queue_free()
+	fangs = []
+	
+	for h in hurt_zones:
+		h.queue_free()
+	hurt_zones = []
 	
 	turnAccel = 0
 	accel = 0
 	friction = 0.95
+	scaleInfo = [-1, -1]
+	health = 100
+	set_health = 100
+	attack = 10
+	dead = false
+
+func deal_damage(body):
+	fang_speed += 40
+	if body != self:
+		body.knock(position, 4 + linear_velocity.length() / 25)
+		body.take_damage(attack)
+
+func take_damage(amount):
+	health -= amount - amount * (-(1 / (armor / 20 + 1)) + 1)
+	if health < 0:
+		health = 0
+
+func knock(from, force):
+	linear_velocity += (self.position - from) * force
 
 func make_from_genome(dna):
 	reset()
@@ -60,6 +102,28 @@ func make_from_genome(dna):
 	for i in range(OrganismUtilities.count_gene(dna, "tcc")):
 		OrganismUtilities.create_tail_obj(self, tail, load("res://sprites/24Circle.png"), 0)
 		accel += 1
+	
+	# Teeth I : atgca
+	if OrganismUtilities.read_gene(dna, "atgca"):
+		OrganismUtilities.create_fang(self, fangs, load("res://sprites/16SmallFang.png"), Vector2(16, -8), [false, false])
+		OrganismUtilities.create_fang(self, fangs, load("res://sprites/16SmallFang.png"), Vector2(16, 8), [true, false])
+		var a = CapsuleShape2D.new()
+		a.radius = 4
+		a.height = 20
+		OrganismUtilities.create_hurtzone(self, hurt_zones, Vector2(18, 0), a)
+	
+	# Teeth II : aaatt
+	if OrganismUtilities.read_gene(dna, "aaatt"):
+		fangs[0].texture = load("res://sprites/16Fang.png")
+		fangs[1].texture = load("res://sprites/16Fang.png")
+		attack += 20
+	
+	# Teeth III : tatatt
+	if OrganismUtilities.read_gene(dna, "tatatt"):
+		OrganismUtilities.create_fang(self, fangs, load("res://sprites/32Fang.png"), Vector2(16, -14), [false, false])
+		OrganismUtilities.create_fang(self, fangs, load("res://sprites/32Fang.png"), Vector2(16, 14), [true, false])
+		attack += 20
+	
 	
 	# Whisker gene I : gcggg
 	if OrganismUtilities.read_gene(dna, "gcggg"):
@@ -111,6 +175,7 @@ func make_from_genome(dna):
 		# Flagellum
 		var a = AnimatedSprite.new()
 		self.add_child(a)
+		a.modulate = palette[1]
 		a.frames = load("res://sprites/flagellum1/flagellum.tres")
 		a.playing = true
 		a.position = Vector2(-32, 0)

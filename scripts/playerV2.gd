@@ -23,10 +23,13 @@ func _physics_process(delta):
 		linear_velocity = OrganismUtilities.move_toward_target(self, mousePosition, linear_velocity, accel, turnAccel, friction, delta)
 		OrganismUtilities.handle_tail(self, tail, linear_velocity, 0.13, 8, 0.85, Ttime, delta)
 		OrganismUtilities.handle_whiskers(self, whiskers, 20, delta)
+		fang_speed = OrganismUtilities.handle_fangs(self, fangs, fang_speed, base_fang_speed, fang_Ttime, delta)
+		set_health = OrganismUtilities.handle_health(self, set_health, health, delta)
 		
 		Ttime += delta
+		fang_Ttime += delta * fang_speed
 
 func _draw():
-	OrganismUtilities.draw_all(self, whiskers)
+	OrganismUtilities.draw_all(self, whiskers, set_health, health)
 
 
