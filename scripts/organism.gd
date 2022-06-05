@@ -15,6 +15,8 @@ var set_health = health
 var armor = 0
 var attack = 10
 
+var soundmanager
+
 var belly = 0
 
 var type
@@ -93,6 +95,7 @@ func take_damage(amount):
 		health = 0
 
 func knock(from, force):
+	soundmanager.play_knock()
 	linear_velocity += (self.position - from) * force
 
 func make_from_genome(dna):
@@ -102,6 +105,12 @@ func make_from_genome(dna):
 	for i in range(OrganismUtilities.count_gene(dna, "tcc")):
 		OrganismUtilities.create_tail_obj(self, tail, load("res://sprites/24Circle.png"), 0)
 		accel += 1
+	
+	# Armored tail gene : cct
+	for i in range(OrganismUtilities.count_gene(dna, "cct")):
+		OrganismUtilities.create_tail_obj(self, tail, load("res://sprites/24Square.png"), 2)
+		armor += 5
+		accel += 0.1
 	
 	# Teeth I : atgca
 	if OrganismUtilities.read_gene(dna, "atgca"):

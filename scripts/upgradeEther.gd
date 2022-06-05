@@ -6,7 +6,8 @@ var upgrade_title = [
 "whiskers  i",
 "whiskers  ii",
 "whiskers  iii",
-"stronger tail"
+"stronger tail",
+"armored tail"
 ]
 
 var upgrade_description = [
@@ -15,7 +16,8 @@ var upgrade_description = [
 	"+ agility",
 	"+ agility",
 	"+ agility",
-	"+ movement"
+	"+ movement",
+	"+ armor"
 ]
 
 var upgrade_dna = [
@@ -24,7 +26,8 @@ var upgrade_dna = [
 	"gcggg",
 	"gcgttt",
 	"gcatgg",
-	"tcc"
+	"tcc",
+	"cct"
 ]
 
 var upgrade_meta = [
@@ -33,6 +36,7 @@ var upgrade_meta = [
 	["upgradable"],
 	["upgradable", "locked"],
 	["locked"],
+	["repeatable"],
 	["repeatable"]
 ]
 

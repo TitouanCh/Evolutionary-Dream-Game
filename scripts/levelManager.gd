@@ -1,6 +1,7 @@
 extends Node2D
 
 onready var player = get_parent().get_node("player")
+onready var soundmanager = get_parent().get_node("audioManager")
 
 var once = false
 
@@ -22,6 +23,9 @@ var npc = []
 var npcInstances = [0]
 var npcScene = preload("res://scenes/npc.tscn")
 
+var border_sprites = []
+var border_texture = preload("res://sprites/32Border.png")
+
 var currents = []
 var currents_resolution = 64
 var current_force = 40
@@ -37,6 +41,7 @@ func _once():
 	setup_food_sprites(64, foodText)
 	setup_debris_sprites(128, debrisText)
 	setup_explosion_systems(8)
+	setup_border_sprites(58)
 	setup_npcs(8)
 	
 	spawn_food_randomly(600, food, Vector2(0, 16384), Vector2(0, 16384))
@@ -47,13 +52,18 @@ func _once():
 
 func progress(n):
 	depth += n
-	if depth == 1:
+	current_force += 5
+	if depth % 6 == 1:
 		spawn_npcs_randomly(100, npc, Vector2(0, 16384), Vector2(0, 16384), "agccgtt")
 		spawn_npcs_randomly(10, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaatt")
-	if depth == 3:
+	if depth % 6 == 3:
 		spawn_food_randomly(600, food, Vector2(0, 16384), Vector2(0, 16384))
-	if depth == 4:
+	if depth % 6 == 4:
 		spawn_npcs_randomly(60, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaatt")
+	if depth % 12 == 11:
+		spawn_npcs_randomly(20, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaattgcggggcgttttcc")
+	if depth % 6 == 5:
+		spawn_npcs_randomly(1, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaatttatatttcctcctcctcctcctccgcggggcgtttgcatgg")
 
 func _process(delta):
 	if !Global.paused:
@@ -63,6 +73,7 @@ func _process(delta):
 		handle_food(delta, food)
 		handle_npc(delta, npc, food)
 		handle_debris(delta, debris)
+		handle_border(border_sprites)
 		
 		player.linear_velocity += get_current(currents, currents_resolution, player.position) * current_force * delta
 		update()
@@ -100,6 +111,15 @@ func setup_npcs(n):
 		a.set_active(false)
 		OrganismUtilities.recolor(a, palette, a.body_sprite, a.neutral_sprites, a.tail, a.fangs)
 
+func setup_border_sprites(n):
+	for i in range(n):
+		var a = Sprite.new()
+		self.add_child(a)
+		border_sprites.append(a)
+		a.modulate = palette[0]
+		a.texture = border_texture
+		a.z_index = -1
+
 func handle_food(d, f):
 	var idx_remove_list = []
 	for i in range(len(f)):
@@ -124,6 +144,7 @@ func handle_food(d, f):
 					if foodSprites[j].position == f[i]:
 						foodSprites[j].visible = false
 				idx_remove_list.append(i)
+				soundmanager.play_eat()
 				entity.belly += 1
 				entity.fang_speed += 40
 				explosionSystems[0] += 1
@@ -150,6 +171,43 @@ func handle_debris(d, f):
 				debrisSprites[0] = 0
 		else:
 			f[i] = Vector2(randf() * 4000 - 2000 + player.position.x, randf() * 4000 - 2000 + player.position.y)
+
+func handle_border(f):
+	if player.position.x < 900:
+		for i in range(0, 29):
+			border_sprites[i].position = Vector2(-16, player.position.y - 450 + i * 32)
+		
+			if border_sprites[i].position.y < -16 or border_sprites[i].position.y > 16384 + 16:
+					border_sprites[i].visible = false
+			else:
+				border_sprites[i].visible = true
+	
+	if player.position.x > 16384 - 900:
+		for i in range(0, 29):
+			border_sprites[i].position = Vector2(16384 + 16, player.position.y - 450 + i * 32)
+		
+			if border_sprites[i].position.y < -16 or border_sprites[i].position.y > 16384 + 16:
+					border_sprites[i].visible = false
+			else:
+				border_sprites[i].visible = true
+	
+	if player.position.y < 900:
+		for i in range(29, 58):
+			border_sprites[i].position = Vector2(player.position.x - 450 + (i - 29) * 32, -16) 
+			
+			if border_sprites[i].position.x < -16 or border_sprites[i].position.x > 16384 + 16:
+				border_sprites[i].visible = false
+			else:
+				border_sprites[i].visible = true
+	
+	if player.position.y > 16384 - 900:
+		for i in range(29, 58):
+			border_sprites[i].position = Vector2(player.position.x - 450 + (i - 29) * 32, 16384 + 16) 
+			
+			if border_sprites[i].position.x < -16 or border_sprites[i].position.x > 16384 + 16:
+				border_sprites[i].visible = false
+			else:
+				border_sprites[i].visible = true
 
 func spawn_food_randomly(n, f, xbor, ybor):
 	for i in range(n):
@@ -229,6 +287,9 @@ func recolor(p):
 		explosionSystems[i].modulate = p[2]
 	for i in range(1, len(npcInstances)):
 		OrganismUtilities.recolor(npcInstances[i], p, npcInstances[i].body_sprite, npcInstances[i].neutral_sprites, npcInstances[i].tail, npcInstances[i].fangs)
+	for i in range(1, len(border_sprites)):
+		border_sprites[i].modulate = p[0]
+
 
 func make_currents(size = 10):
 	var currents_table = []
@@ -257,22 +318,26 @@ func make_currents(size = 10):
 	return currents_table
 
 func get_current(c, r, pos):
-	var a2 = int(pos.x) % r + (pos.x - int(pos.x))
-	var a1 = r - a2
-#
-#	var x = c[floor(pos.x/r)].x * a1 + c[ceil(pos.x/r)].x * a2
+	if pos.x < 16384 and pos.x > 0 and pos.y < 16384 and pos.y > 0:
+		var a2 = int(pos.x) % r + (pos.x - int(pos.x))
+		var a1 = r - a2
+	#
+	#	var x = c[floor(pos.x/r)].x * a1 + c[ceil(pos.x/r)].x * a2
+		
+		var b2 = int(pos.y) % r + (pos.y - int(pos.y))
+		var b1 = r - b2
+		
+	#	var y = c[floor(pos.y/r)].y * b1 + c[ceil(pos.y/r)].y * b2
+		
+		var v1 = c[floor(pos.y/r)][floor(pos.x/r)] * (b1 + a1)
+		var v2 = c[ceil(pos.y/r)][floor(pos.x/r)] * (b2 + a1)
+		var v3 = c[floor(pos.y/r)][ceil(pos.x/r)] * (b1 + a2)
+		var v4 = c[ceil(pos.y/r)][ceil(pos.x/r)] * (b2 + a2)
+		
+		return (v1 + v2 + v3 + v4) / (b1 + b1 + b2 + b2 + a1 + a1 + a2 + a2)
 	
-	var b2 = int(pos.y) % r + (pos.y - int(pos.y))
-	var b1 = r - b2
-	
-#	var y = c[floor(pos.y/r)].y * b1 + c[ceil(pos.y/r)].y * b2
-	
-	var v1 = c[floor(pos.y/r)][floor(pos.x/r)] * (b1 + a1)
-	var v2 = c[ceil(pos.y/r)][floor(pos.x/r)] * (b2 + a1)
-	var v3 = c[floor(pos.y/r)][ceil(pos.x/r)] * (b1 + a2)
-	var v4 = c[ceil(pos.y/r)][ceil(pos.x/r)] * (b2 + a2)
-	
-	return (v1 + v2 + v3 + v4) / (b1 + b1 + b2 + b2 + a1 + a1 + a2 + a2)
+	else:
+		return Vector2.ZERO
 
 func draw_currents(c, r):
 	for y in range(len(currents)):

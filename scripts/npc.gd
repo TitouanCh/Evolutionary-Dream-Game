@@ -4,6 +4,9 @@ var target = Vector2.ZERO
 
 onready var levelManager = get_parent()
 
+func _ready():
+	soundmanager = get_parent().get_parent().get_node("audioManager")
+
 func _once():
 	make_from_genome(DNA)
 

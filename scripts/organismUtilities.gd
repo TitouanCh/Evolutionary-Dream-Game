@@ -88,6 +88,8 @@ static func handle_tail(this, tail_list, direction_vector, first_space, reaction
 		# Rotation ---
 		if tail_list[i][1][1] == 1:
 			tail_list[i][0].rotation = lerp_angle(tail_list[i][0].rotation, tail_list[i][1][0].angle(), delta * this.turnAccel)
+		if tail_list[i][1][1] == 2:
+			tail_list[i][0].rotation = lerp_angle(tail_list[i][0].rotation, this.fang_Ttime, delta * this.turnAccel * 5)
 
 static func handle_whiskers(this, whisker_list, whisker_force, delta):
 	for i in range(len(whisker_list)):
