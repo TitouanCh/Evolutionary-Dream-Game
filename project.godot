@@ -12,17 +12,17 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "AdvMath",
 "language": "GDScript",
-"path": "res://scripts/mathUtilities.gd"
+"path": "res://bin/scripts/utilities/mathUtilities.gd"
 }, {
 "base": "KinematicBody2D",
 "class": "Organism",
 "language": "GDScript",
-"path": "res://scripts/organism.gd"
+"path": "res://bin/scripts/class/organism.gd"
 }, {
 "base": "Reference",
 "class": "OrganismUtilities",
 "language": "GDScript",
-"path": "res://scripts/organismUtilities.gd"
+"path": "res://bin/scripts/utilities/organismUtilities.gd"
 } ]
 _global_script_class_icons={
 "AdvMath": "",
@@ -33,13 +33,13 @@ _global_script_class_icons={
 [application]
 
 config/name="Godotgo 3"
-run/main_scene="res://scenes/flask.tscn"
+run/main_scene="res://bin/scenes/meta/flask.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
-Global="*res://scripts/global.gd"
-UpgradeEther="*res://scripts/upgradeEther.gd"
+Global="*res://bin/scripts/global.gd"
+UpgradeEther="*res://bin/scripts/managers/upgradeEther.gd"
 
 [display]
 
@@ -81,4 +81,3 @@ common/enable_pause_aware_picking=true
 [rendering]
 
 environment/default_clear_color=Color( 0, 0, 0, 1 )
-environment/default_environment="res://default_env.tres"
