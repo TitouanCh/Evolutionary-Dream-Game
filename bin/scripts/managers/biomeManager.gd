@@ -4,7 +4,7 @@ var current_biome = "tidepool"
 
 var current_palette = [Color("190111"), Color("f9b3d1"), Color("f1e8b8"), Color("c62e65")]
 
-onready var player = get_parent().get_node("player")
+onready var player = get_parent().get_node("levelManager").get_node("player")
 onready var levelManager = get_parent().get_node("levelManager")
 onready var cursor = get_parent().get_node("cursor")
 onready var background = get_parent().get_node("background")

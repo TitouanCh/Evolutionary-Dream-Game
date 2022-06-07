@@ -1,6 +1,6 @@
 extends Node2D
 
-onready var player = get_parent().get_node("player")
+onready var player = get_node("player")
 onready var soundmanager = get_parent().get_node("audioManager")
 
 var once = false
@@ -21,7 +21,7 @@ var explosionScene = preload("res://bin/scenes/objects/explosionParticleSystem.t
 # npc format, [position, dna, behavior, loaded]
 var npc = []
 var npcInstances = [0]
-var npcScene = preload("res://bin/scenes/objects/npc.tscn")
+var npcScene = preload("res://bin/scenes/objects/organism.tscn")
 
 var border_sprites = []
 var border_texture = preload("res://assets/sprites/32Border.png")
@@ -36,6 +36,7 @@ var small_distance = 512
 
 func _ready():
 	currents = make_currents(512)
+	player.setup("atgcatgc", "player", self, soundmanager)
 
 func _once():
 	setup_food_sprites(64, foodText)
@@ -108,6 +109,7 @@ func setup_npcs(n):
 		var a = npcScene.instance()
 		self.add_child(a)
 		npcInstances.append(a)
+		a.setup("agccgtt", "herbivore", self, soundmanager)
 		a.set_active(false)
 		OrganismUtilities.recolor(a, palette, a.body_sprite, a.neutral_sprites, a.tail, a.fangs)
 

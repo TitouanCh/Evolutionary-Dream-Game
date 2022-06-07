@@ -1,6 +1,6 @@
 extends Node2D
 
-onready var player = get_parent().get_node("player")
+onready var player = get_parent().get_node("levelManager").get_node("player")
 onready var sprite = get_node("sprite")
 var mouse_visible = false
 

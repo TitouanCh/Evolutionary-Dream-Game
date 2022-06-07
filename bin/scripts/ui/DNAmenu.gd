@@ -1,6 +1,6 @@
 extends Node2D
 
-onready var player = get_parent().get_node("player")
+onready var player = get_parent().get_node("levelManager").get_node("player")
 onready var cursor = get_parent().get_node("cursor")
 onready var evolve_text = get_parent().get_node("evolve_text")
 onready var levelManager = get_parent().get_node("levelManager")

@@ -1,6 +1,6 @@
 extends AnimatedSprite
 
-onready var player = get_parent().get_node("player")
+onready var player = get_parent().get_node("levelManager").get_node("player")
 onready var cursor = get_parent().get_node("cursor")
 onready var DNAmenu = get_parent().get_node("DNAmenu")
 
