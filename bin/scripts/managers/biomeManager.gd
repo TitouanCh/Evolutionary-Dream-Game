@@ -6,8 +6,8 @@ var current_palette = [Color("190111"), Color("f9b3d1"), Color("f1e8b8"), Color(
 
 onready var player = get_parent().get_node("levelManager").get_node("player")
 onready var levelManager = get_parent().get_node("levelManager")
-onready var cursor = get_parent().get_node("cursor")
-onready var background = get_parent().get_node("background")
+onready var UIManager = get_parent().get_node("UIManager")
+onready var background = get_node("background")
 
 var colors = false
 
@@ -16,7 +16,7 @@ func set_background_color(p):
 
 func establish_palette():
 	OrganismUtilities.recolor(player, current_palette, player.body_sprite, player.neutral_sprites, player.tail, player.fangs)
-	cursor.recolor(current_palette)
+	UIManager.cursor.recolor(current_palette)
 	levelManager.recolor(current_palette)
 	set_background_color(current_palette)
 
