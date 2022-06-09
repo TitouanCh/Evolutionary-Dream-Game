@@ -138,7 +138,7 @@ func take_damage(amount):
 # - Knockback
 # get knocked from a point
 func knock(from, force):
-	soundmanager.play_knock()
+	soundmanager.play_sound("knock")
 	linear_velocity += (self.position - from) * force
 
 # - Make the organism from the genome, using data (WIP)...

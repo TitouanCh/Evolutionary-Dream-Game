@@ -116,6 +116,7 @@ margin_bottom = 16384.0
 mouse_filter = 2
 
 [node name="audioManager" parent="." instance=ExtResource( 27 )]
+muted = true
 
 [connection signal="animation_finished" from="evolve_text" to="evolve_text" method="_on_evolve_text_animation_finished"]
 [connection signal="mouse_entered" from="evolve_text/evolve_button" to="evolve_text" method="_on_evolve_button_mouse_entered"]

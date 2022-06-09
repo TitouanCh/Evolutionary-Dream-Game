@@ -146,7 +146,7 @@ func handle_food(d, f):
 					if foodSprites[j].position == f[i]:
 						foodSprites[j].visible = false
 				idx_remove_list.append(i)
-				soundmanager.play_eat()
+				soundmanager.play_sound("eat")
 				entity.belly += 1
 				entity.fang_speed += 40
 				explosionSystems[0] += 1
