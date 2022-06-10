@@ -51,3 +51,42 @@ static func remove_extension(list_of_files):
 	for file in list_of_files:
 		list.append(file.split(".")[0])
 	return list
+
+# - Read text file, ignoring comments, outputs array of all the lines
+static func read_file(path, dedent = true):
+	var allthelines = []        
+	
+	var file = File.new()
+	file.open(path, file.READ)
+	
+	while file.get_position() < file.get_len():
+		var line = file.get_line()
+		if line != "":
+			if line[0] != "#":
+				if dedent: line = line.dedent()
+				allthelines.append(line)
+	
+	file.close()
+	
+	return allthelines
+
+# - Make gene database from a directory 
+static func make_gene_database(gene_dir):
+	var gene_database = {}
+	var all_gene_files = get_all_files_dir(gene_dir)
+	
+	for file in all_gene_files:
+		var raw = read_file(gene_dir + "/" + file)
+		
+		for i in range(len(raw)):
+			if raw[i] == "START":
+				var key = raw[i + 2]
+				var gene = []
+				var j = i + 1
+				while raw[j] != "STOP":
+					gene.append(raw[j])
+					j += 1
+				
+				gene_database[key] = gene
+	
+	return gene_database

@@ -11,6 +11,5 @@ func _ready():
 	for child in get_children():
 		if child.get("player"):
 			child.player = player
-			print(player)
 		if child.get("levelManager"):
 			child.levelManager = levelManager

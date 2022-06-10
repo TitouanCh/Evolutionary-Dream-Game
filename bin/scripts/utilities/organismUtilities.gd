@@ -3,6 +3,85 @@ extends Reference
 class_name OrganismUtilities
 
 # DNA Functions ---
+static func execute_gene(this, execute_info):
+	var start = false
+	for line in execute_info:
+		if line == ";":
+			break
+		if start:
+			execute_line(this, line)
+		elif line == "DO":
+			start = true
+
+static func execute_line(this, line):
+	var raw_list = line.split(" ")
+	var list = []
+	var expression = Expression.new()
+	var command = ""
+	
+	# File to var, will move later ---
+	for i in range(len(raw_list)):
+		# Vector 2
+		if raw_list[i][0] == "(":
+			var a = raw_list[i].replace(" ", "").replace("(", "").replace(",", "")
+			var b = raw_list[i + 1].replace(" ", "").replace(")", "")
+			list.append(Vector2(JSON.parse(a).result, JSON.parse(b).result))
+		# Arrays
+		elif raw_list[i][0] == "[":
+			var inside_list = [JSON.parse(raw_list[i].replace(" ", "").replace("[", "").replace("]", "").replace(",", "")).result]
+			var j = i
+			while raw_list[j][-1] != "]":
+				var a = JSON.parse(raw_list[j + 1].replace(" ", "").replace("[", "").replace("]", "").replace(",", "")).result
+				inside_list.append(a)
+				j += 1
+			list.append(inside_list)
+		# Ignore rest of arr or vector
+		elif raw_list[i][-1] == "]" or raw_list[i][-1] == ")" or raw_list[i][-1] == ",":
+			continue
+		# Strings
+		else:
+			list.append(raw_list[i])
+	
+	list[1] = load("res://assets/sprites/16Fang.png")
+	print(list)
+	# ---
+	
+	# Assign variable
+	if list[1] is String:
+		if list[1] == "<-":
+			pass
+	# Execute function
+	else:
+		command = "OrganismUtilities." + list[0].to_lower() + "("
+		for i in range(0, len(list)):
+			command += "arr[" + str(i) + "], "
+		command = command.substr(0, len(command) - 2)
+		command += ")"
+	
+	print(command)
+#	var error = expression.parse(command, keys)
+#
+#	if error != OK:
+#		print("expression error : " + expression.get_error_text() + " " + command)
+#		return
+#
+	list.remove(0)
+#	expression.execute([this, list[0], list[1], list[2]], null, true)
+#	if expression.has_execute_failed():
+#		print("expression can't execute : " + command)
+
+	var script = GDScript.new()
+	
+	script.source_code += "\nfunc run(arr):\n	" + command + "\n"
+	print(script.source_code)
+	
+	script.reload()
+	
+	# Need to create an instance of the script to call its methods
+	var instance = Reference.new()
+	instance.set_script(script)
+	
+	instance.call("run", [this] + list)
 
 static func read_gene(dna, gene):
 	var a = len(gene)
@@ -44,7 +123,7 @@ static func create_whisker(this, whisker_list, length, anchor, polyX, polyY):
 	
 	whisker_list.append([points, velocities, 0, anchor, polyX, polyY])
 
-static func create_fang(this, fang_list, img, position, arr = [false, false]):
+static func create_fang(this, img, position, arr = [false, false]):
 	var a = Sprite.new()
 	a.modulate = this.palette[3]
 	this.add_child(a)
@@ -54,7 +133,7 @@ static func create_fang(this, fang_list, img, position, arr = [false, false]):
 	a.flip_h = arr[0]
 	a.flip_v = arr[1]
 	
-	fang_list.append(a)
+	this.fangs.append(a)
 
 static func create_hurtzone(this, hurt_zone_list, position, shape):
 	var a = Area2D.new()

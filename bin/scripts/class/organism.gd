@@ -145,6 +145,14 @@ func knock(from, force):
 func make_from_genome(dna):
 	reset()
 	
+	for gene in Global.geneDatabase:
+		if Global.geneDatabase[gene].has("COUNT"):
+			for i in range(OrganismUtilities.count_gene(dna, gene)):
+				OrganismUtilities.execute_gene(self, Global.geneDatabase[gene])
+		else:
+			if OrganismUtilities.read_gene(dna, gene):
+				OrganismUtilities.execute_gene(self, Global.geneDatabase[gene])
+	
 	# Strong tail gene : tcc
 	for i in range(OrganismUtilities.count_gene(dna, "tcc")):
 		OrganismUtilities.create_tail_obj(self, tail, load("res://assets/sprites/24Circle.png"), 0)
@@ -157,13 +165,13 @@ func make_from_genome(dna):
 		accel += 0.1
 	
 	# Teeth I : atgca
-	if OrganismUtilities.read_gene(dna, "atgca"):
-		OrganismUtilities.create_fang(self, fangs, load("res://assets/sprites/16SmallFang.png"), Vector2(16, -8), [false, false])
-		OrganismUtilities.create_fang(self, fangs, load("res://assets/sprites/16SmallFang.png"), Vector2(16, 8), [true, false])
-		var a = CapsuleShape2D.new()
-		a.radius = 4
-		a.height = 20
-		OrganismUtilities.create_hurtzone(self, hurt_zones, Vector2(18, 0), a)
+#	if OrganismUtilities.read_gene(dna, "atgca"):
+#		OrganismUtilities.create_fang(self, fangs, load("res://assets/sprites/16SmallFang.png"), Vector2(16, -8), [false, false])
+#		OrganismUtilities.create_fang(self, fangs, load("res://assets/sprites/16SmallFang.png"), Vector2(16, 8), [true, false])
+#		var a = CapsuleShape2D.new()
+#		a.radius = 4
+#		a.height = 20
+#		OrganismUtilities.create_hurtzone(self, hurt_zones, Vector2(18, 0), a)
 	
 	# Teeth II : aaatt
 	if OrganismUtilities.read_gene(dna, "aaatt"):
@@ -173,8 +181,8 @@ func make_from_genome(dna):
 	
 	# Teeth III : tatatt
 	if OrganismUtilities.read_gene(dna, "tatatt"):
-		OrganismUtilities.create_fang(self, fangs, load("res://assets/sprites/32Fang.png"), Vector2(16, -14), [false, false])
-		OrganismUtilities.create_fang(self, fangs, load("res://assets/sprites/32Fang.png"), Vector2(16, 14), [true, false])
+		OrganismUtilities.create_fang(self, load("res://assets/sprites/32Fang.png"), Vector2(16, -14), [false, false])
+		OrganismUtilities.create_fang(self, load("res://assets/sprites/32Fang.png"), Vector2(16, 14), [true, false])
 		attack += 20
 	
 	
