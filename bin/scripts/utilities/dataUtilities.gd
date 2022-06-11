@@ -87,6 +87,10 @@ static func make_gene_database(gene_dir):
 					gene.append(raw[j])
 					j += 1
 				
-				gene_database[key] = gene
+				gene_database[remove_tabs_and_spaces(key.replace("SEQUENCE:", ""))] = gene
 	
 	return gene_database
+
+# - Remove tabs and spaces from string
+static func remove_tabs_and_spaces(string):
+	return string.replace("	", "").replace(" ", "")

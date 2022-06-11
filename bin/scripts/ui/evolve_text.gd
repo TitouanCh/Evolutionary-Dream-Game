@@ -47,5 +47,5 @@ func _on_evolve_button_mouse_exited():
 		cursor.change_cursor(1)
 
 func _on_evolve_button_pressed():
-	if self.animation == "complete" or self.animation == "transition":
+	if true: #self.animation == "complete" or self.animation == "transition":
 		DNAmenu.choose_upgrade()

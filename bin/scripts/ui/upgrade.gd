@@ -18,7 +18,7 @@ func _draw():
 
 func set_random_upgrade():
 	ni = randi() % len(UpgradeEther.upgrade_title)
-	while UpgradeEther.upgrade_meta[ni].has("locked"):
+	while UpgradeEther.idx_is_locked(ni, UpgradeEther.upgrade_meta):
 		ni = randi() % len(UpgradeEther.upgrade_title)
 	title.bbcode_text = "[center]" + UpgradeEther.upgrade_title[ni] + "[/center]"
 	description.bbcode_text = "[center]" + UpgradeEther.upgrade_description[ni] + "\n" + UpgradeEther.upgrade_dna[ni] + "[/center]"

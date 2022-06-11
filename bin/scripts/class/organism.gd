@@ -174,16 +174,16 @@ func make_from_genome(dna):
 #		OrganismUtilities.create_hurtzone(self, hurt_zones, Vector2(18, 0), a)
 	
 	# Teeth II : aaatt
-	if OrganismUtilities.read_gene(dna, "aaatt"):
-		fangs[0].texture = load("res://assets/sprites/16Fang.png")
-		fangs[1].texture = load("res://assets/sprites/16Fang.png")
-		attack += 20
+#	if OrganismUtilities.read_gene(dna, "aaatt"):
+#		fangs[0].texture = load("res://assets/sprites/16Fang.png")
+#		fangs[1].texture = load("res://assets/sprites/16Fang.png")
+#		attack += 20
 	
 	# Teeth III : tatatt
-	if OrganismUtilities.read_gene(dna, "tatatt"):
-		OrganismUtilities.create_fang(self, load("res://assets/sprites/32Fang.png"), Vector2(16, -14), [false, false])
-		OrganismUtilities.create_fang(self, load("res://assets/sprites/32Fang.png"), Vector2(16, 14), [true, false])
-		attack += 20
+#	if OrganismUtilities.read_gene(dna, "tatatt"):
+#		OrganismUtilities.create_fang(self, load("res://assets/sprites/32Fang.png"), Vector2(16, -14), [false, false])
+#		OrganismUtilities.create_fang(self, load("res://assets/sprites/32Fang.png"), Vector2(16, 14), [true, false])
+#		attack += 20
 	
 	
 	# Whisker gene I : gcggg

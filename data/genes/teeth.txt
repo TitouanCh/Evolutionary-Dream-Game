@@ -1,28 +1,42 @@
 GENE
 
 START
-		teeth i
-	atgca
-	+damage
-	upgradable
+	TITLE:       		teeth_0
+	SEQUENCE:    atgca
+	DESCRIPTION: +_damage
+	UPGRADETAGS: nonavailable
 
 	DO
-	CREATE_FANG 16SMALL_FANG (16, -8) [false, false]
-	CREATE_FANG 16SMALL_FANG (16, 8) [true, false]
-#	a <- CREATE_CAPSULE (4, 20)
-#	CREATE_HURTZONE a (18, 0)
+	CREATE_FANG ~16SMALL_FANG (16, -8) [false, false]
+	CREATE_FANG ~16SMALL_FANG (16, 8) [true, false]
+	a <- CREATE_CAPSULE (4, 20)
+	CREATE_HURTZONE a (18, 0)
 	;
 STOP
 
 START
-		teeth ii
-	aaatt
-	+damage
-	upgradable
+	TITLE: 	     		teeth_i
+	SEQUENCE:    aaatt
+	DESCRIPTION: +_damage
+	UPGRADETAGS: upgradable
 
 	DO	
-	CHANGE_FANG_TEXTURE 16FANG 0
-	CHANGE_FANG_TEXTURE 16FANG 1
+	CHANGE_FANG_TEXTURE ~16FANG 0
+	CHANGE_FANG_TEXTURE ~16FANG 1
+
+	ATTACK++ 20
+	;
+STOP
+
+START
+	TITLE: 	     		teeth_ii
+	SEQUENCE:    tatatt
+	DESCRIPTION: +_damage
+	UPGRADETAGS: teeth_i_locked
+
+	DO	
+	CREATE_FANG ~32FANG (16, -14) [false, false]
+	CREATE_FANG ~32FANG (16, 14) [true, false]
 
 	ATTACK++ 20
 	;

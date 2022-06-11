@@ -4,16 +4,17 @@ class_name OrganismUtilities
 
 # DNA Functions ---
 static func execute_gene(this, execute_info):
+	var var_dict = {"a" : 0, "b" : 0, "c" : 0, "d" : 0, "e" : 0, "f" : 0, "g" : 0, "h" : 0}
 	var start = false
 	for line in execute_info:
-		if line == ";":
+		if line.begins_with(";"):
 			break
 		if start:
-			execute_line(this, line)
-		elif line == "DO":
+			execute_line(this, line, var_dict)
+		elif line.begins_with("DO"):
 			start = true
 
-static func execute_line(this, line):
+static func execute_line(this, line, var_dict):
 	var raw_list = line.split(" ")
 	var list = []
 	var expression = Expression.new()
@@ -38,42 +39,56 @@ static func execute_line(this, line):
 		# Ignore rest of arr or vector
 		elif raw_list[i][-1] == "]" or raw_list[i][-1] == ")" or raw_list[i][-1] == ",":
 			continue
+		# Sprites
+		elif raw_list[i][0] == "~":
+			list.append(load("res://assets/sprites/" + raw_list[i].replace("~", "") + ".png"))
+		# Declared variable
+		elif raw_list[i] in var_dict and i > 0:
+			list.append(var_dict[raw_list[i]])
+		# Int
+		elif raw_list[i].is_valid_integer():
+			list.append(int(raw_list[i]))
+		# Float
+		elif raw_list[i].is_valid_float():
+			list.append(float(raw_list[i]))
 		# Strings
 		else:
 			list.append(raw_list[i])
 	
-	list[1] = load("res://assets/sprites/16Fang.png")
-	print(list)
+#	print(list)
+	
 	# ---
 	
 	# Assign variable
+	var n = 0
 	if list[1] is String:
 		if list[1] == "<-":
-			pass
+			command = "return OrganismUtilities." + list[2].to_lower() + "("
+			n += 3
+	
 	# Execute function
 	else:
 		command = "OrganismUtilities." + list[0].to_lower() + "("
-		for i in range(0, len(list)):
-			command += "arr[" + str(i) + "], "
-		command = command.substr(0, len(command) - 2)
-		command += ")"
 	
-	print(command)
-#	var error = expression.parse(command, keys)
-#
-#	if error != OK:
-#		print("expression error : " + expression.get_error_text() + " " + command)
-#		return
-#
-	list.remove(0)
-#	expression.execute([this, list[0], list[1], list[2]], null, true)
-#	if expression.has_execute_failed():
-#		print("expression can't execute : " + command)
-
+	# Modify Organism Attribute
+	if list[0] is String:
+		if list[0].ends_with("++"):
+			this.set(list[0].replace("++", "").to_lower(), this.get(list[0].replace("++", "").to_lower()) + list[1])
+			return
+		if list[0].ends_with("--"):
+			this.set(list[0].replace("--", "").to_lower(), this.get(list[0].replace("--", "").to_lower()) - list[1])
+			return
+	
+	# Creating script
+	for i in range(n, len(list)):
+		command += "arr[" + str(i) + "], "
+	command = command.substr(0, len(command) - 2)
+	command += ")"
+	
 	var script = GDScript.new()
 	
 	script.source_code += "\nfunc run(arr):\n	" + command + "\n"
-	print(script.source_code)
+#	print(script.source_code)
 	
 	script.reload()
 	
@@ -81,7 +96,16 @@ static func execute_line(this, line):
 	var instance = Reference.new()
 	instance.set_script(script)
 	
-	instance.call("run", [this] + list)
+	# Assign variable
+	if list[1] is String:
+		if list[1] == "<-":
+			var_dict[list[0]] = instance.call("run", list)
+	# Execute function
+	else:
+		list.remove(0)
+		instance.call("run", [this] + list)
+
+#	print(var_dict)
 
 static func read_gene(dna, gene):
 	var a = len(gene)
@@ -104,7 +128,15 @@ static func count_gene(dna, gene):
 			count += 1
 	return count
 
-# Create Functions ---
+# Create Function --- Basic
+
+static func create_capsule(dimensions):
+	var a = CapsuleShape2D.new()
+	a.radius = dimensions.x
+	a.height = dimensions.y
+	return a
+
+# Create Functions --- Advanced
 
 static func create_tail_obj(this, tail_list, img, rotateMode):
 	var a = Sprite.new()
@@ -135,7 +167,10 @@ static func create_fang(this, img, position, arr = [false, false]):
 	
 	this.fangs.append(a)
 
-static func create_hurtzone(this, hurt_zone_list, position, shape):
+static func change_fang_texture(this, img, idx):
+	this.fangs[idx].texture = img
+
+static func create_hurtzone(this, shape, position):
 	var a = Area2D.new()
 	this.add_child(a)
 	var b = CollisionShape2D.new()
@@ -145,7 +180,7 @@ static func create_hurtzone(this, hurt_zone_list, position, shape):
 	a.position = position
 	
 	a.connect("body_entered", this, "deal_damage")
-	hurt_zone_list.append(a)
+	this.hurt_zones.append(a)
 
 # Handle Functions ---
 
