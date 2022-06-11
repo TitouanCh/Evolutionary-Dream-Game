@@ -1,36 +1,12 @@
 extends Node
 
-var upgrade_title = [
-	"whiskers  i",
-	"whiskers  ii",
-	"whiskers  iii",
-	"stronger tail",
-	"armored tail"
-]
+var upgrade_title = []
 
-var upgrade_description = [
-	"+ agility",
-	"+ agility",
-	"+ agility",
-	"+ movement",
-	"+ armor"
-]
+var upgrade_description = []
 
-var upgrade_dna = [
-	"gcggg",
-	"gcgttt",
-	"gcatgg",
-	"tcc",
-	"cct"
-]
+var upgrade_dna = []
 
-var upgrade_meta = [
-	["upgradable"],
-	["upgradable", "locked"],
-	["locked"],
-	["repeatable"],
-	["repeatable"]
-]
+var upgrade_meta = []
 
 func load_upgrades(database):
 	for gene in database:

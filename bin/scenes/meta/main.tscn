@@ -14,7 +14,7 @@
 
 [node name="player" parent="levelManager" instance=ExtResource( 1 )]
 position = Vector2( 3000, 3000 )
-behavior = "player"
+behavior_override = "player"
 
 [node name="title" type="RichTextLabel" parent="levelManager/player"]
 modulate = Color( 0.776471, 0.180392, 0.396078, 1 )

@@ -31,7 +31,7 @@ static func execute_line(this, line, var_dict):
 		elif raw_list[i][0] == "[":
 			var inside_list = [JSON.parse(raw_list[i].replace(" ", "").replace("[", "").replace("]", "").replace(",", "")).result]
 			var j = i
-			while raw_list[j][-1] != "]":
+			while !raw_list[j].ends_with("]") and !raw_list[j].ends_with("],"):
 				var a = JSON.parse(raw_list[j + 1].replace(" ", "").replace("[", "").replace("]", "").replace(",", "")).result
 				inside_list.append(a)
 				j += 1
@@ -39,9 +39,13 @@ static func execute_line(this, line, var_dict):
 		# Ignore rest of arr or vector
 		elif raw_list[i][-1] == "]" or raw_list[i][-1] == ")" or raw_list[i][-1] == ",":
 			continue
-		# Sprites
+		# Sprites/AnimatedSprites
 		elif raw_list[i][0] == "~":
-			list.append(load("res://assets/sprites/" + raw_list[i].replace("~", "") + ".png"))
+			var directory = Directory.new();
+			if directory.file_exists("res://assets/sprites/" + raw_list[i].replace("~", "") + ".png"):
+				list.append(load("res://assets/sprites/" + raw_list[i].replace("~", "") + ".png"))
+			if directory.file_exists("res://assets/sprites/" + raw_list[i].replace("~", "") + ".tres"):
+				list.append(load("res://assets/sprites/" + raw_list[i].replace("~", "") + ".tres"))
 		# Declared variable
 		elif raw_list[i] in var_dict and i > 0:
 			list.append(var_dict[raw_list[i]])
@@ -77,6 +81,9 @@ static func execute_line(this, line, var_dict):
 			return
 		if list[0].ends_with("--"):
 			this.set(list[0].replace("--", "").to_lower(), this.get(list[0].replace("--", "").to_lower()) - list[1])
+			return
+		if list[0].ends_with("="):
+			this.set(list[0].replace("=", "").to_lower(), list[1])
 			return
 	
 	# Creating script
@@ -129,6 +136,10 @@ static func count_gene(dna, gene):
 	return count
 
 # Create Function --- Basic
+static func create_rect(dimensions):
+	var rect = RectangleShape2D.new()
+	rect.set_extents(dimensions)
+	return rect
 
 static func create_capsule(dimensions):
 	var a = CapsuleShape2D.new()
@@ -136,24 +147,48 @@ static func create_capsule(dimensions):
 	a.height = dimensions.y
 	return a
 
+static func create_neutral_sprite(this, text, position):
+	var a
+	
+	# Regular Sprite
+	if text is StreamTexture:
+		a = Sprite.new()
+		a.texture = text
+	
+	# Animated Sprite
+	if text is SpriteFrames:
+		a = AnimatedSprite.new()
+		a.frames = text
+		a.playing = true
+		
+	this.add_child(a)
+	this.neutral_sprites.append(a)
+	a.position = position
+	a.modulate = this.palette[1]
+
+static func change_body(this, text, shape, rot = 0):
+	this.body_sprite.texture = text
+	this.body_sprite.rotation_degrees = rot
+	this.collisionShape.shape = shape
+
 # Create Functions --- Advanced
 
-static func create_tail_obj(this, tail_list, img, rotateMode):
+static func create_tail_obj(this, img, rotateMode):
 	var a = Sprite.new()
 	a.modulate = this.palette[1]
 	this.get_parent().add_child(a)
 	a.texture = img
 	
-	tail_list.append([a, [Vector2.ZERO, rotateMode]])
+	this.tail.append([a, [Vector2.ZERO, rotateMode]])
 
-static func create_whisker(this, whisker_list, length, anchor, polyX, polyY):
+static func create_whisker(this, length, anchor, polyX, polyY):
 	var points = []
 	var velocities = []
 	for i in range(length):
 		points.append(Vector2.ZERO)
 		velocities.append(Vector2.ZERO)
 	
-	whisker_list.append([points, velocities, 0, anchor, polyX, polyY])
+	this.whiskers.append([points, velocities, 0, anchor, polyX, polyY])
 
 static func create_fang(this, img, position, arr = [false, false]):
 	var a = Sprite.new()
@@ -201,9 +236,9 @@ static func handle_tail(this, tail_list, direction_vector, first_space, reaction
 		
 		# Rotation ---
 		if tail_list[i][1][1] == 1:
-			tail_list[i][0].rotation = lerp_angle(tail_list[i][0].rotation, tail_list[i][1][0].angle(), delta * this.turnAccel)
+			tail_list[i][0].rotation = lerp_angle(tail_list[i][0].rotation, tail_list[i][1][0].angle(), delta * this.turn_accel)
 		if tail_list[i][1][1] == 2:
-			tail_list[i][0].rotation = lerp_angle(tail_list[i][0].rotation, this.fang_Ttime, delta * this.turnAccel * 5)
+			tail_list[i][0].rotation = lerp_angle(tail_list[i][0].rotation, this.fang_Ttime, delta * this.turn_accel * 5)
 
 static func handle_whiskers(this, whisker_list, whisker_force, delta):
 	for i in range(len(whisker_list)):

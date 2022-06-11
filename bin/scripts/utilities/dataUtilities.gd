@@ -61,8 +61,8 @@ static func read_file(path, dedent = true):
 	
 	while file.get_position() < file.get_len():
 		var line = file.get_line()
-		if line != "":
-			if line[0] != "#":
+		if line.dedent() != "":
+			if line.dedent()[0] != "#":
 				if dedent: line = line.dedent()
 				allthelines.append(line)
 	

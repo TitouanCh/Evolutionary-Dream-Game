@@ -1,0 +1,42 @@
+GENE
+
+START
+	TITLE:       		whiskers_i
+	SEQUENCE:    gcggg
+	DESCRIPTION: +_agility
+	UPGRADETAGS: upgradable
+
+	DO
+	CREATE_WHISKER 3 (10, 16) [15, 0, 1.4], [1, 0, -1]
+	CREATE_WHISKER 3 (10, -16) [15, 0, 1.4], [-1, 0, 1]
+	TURN_ACCEL++ 2.5
+	;
+STOP
+
+START
+	TITLE: 	     		whiskers_ii
+	SEQUENCE:    gcgttt
+	DESCRIPTION: +_agility
+	UPGRADETAGS: upgradable, whiskers_i_locked
+
+	DO	
+	CREATE_WHISKER 3 (0, 16) [15, 0, 1.4], [1, 0, -1]
+	CREATE_WHISKER 3 (0, -16) [15, 0, 1.4], [-1, 0, 1]
+	TURN_ACCEL++ 2.5
+	;
+STOP
+
+START
+	TITLE: 	     		whiskers_iii
+	SEQUENCE:    gcatgg
+	DESCRIPTION: +_agility
+	UPGRADETAGS: whiskers_ii_locked
+
+	DO	
+	CREATE_WHISKER 4 (-5, 16) [0, -4, 2], [1, 0, -1]
+	CREATE_WHISKER 4 (-5, -16) [0, -4, 2], [-1, 0, 1]
+	CREATE_WHISKER 4 (-10, 16) [0, -4, 2], [1, 0, -1]
+	CREATE_WHISKER 4 (-10, -16) [0, -4, 2], [-1, 0, 1]
+	TURN_ACCEL++ 3.5
+	;
+STOP

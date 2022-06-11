@@ -1,0 +1,14 @@
+GENE
+
+START
+	TITLE:       		stronger_tail
+	SEQUENCE:    tcc
+	DESCRIPTION: +_movement
+	UPGRADETAGS: repeatable
+
+	COUNT
+	DO
+	CREATE_TAIL_OBJ ~24CIRCLE 0
+	ACCEL++ 1
+	;
+STOP

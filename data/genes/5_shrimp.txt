@@ -1,0 +1,24 @@
+GENE
+
+START
+	TITLE:       		shrimp
+	SEQUENCE:    atgcatgc
+	DESCRIPTION: shrimp
+	UPGRADETAGS: nonavailable
+
+	DO
+	# Crusty body
+	a <- CREATE_RECT (13, 28)
+	CHANGE_BODY ~32HEAVY_SQUARE a 90
+		
+	# Shrimp tail
+	CREATE_TAIL_OBJ ~24CIRCLE 0
+	CREATE_TAIL_OBJ ~24CIRCLE 0
+	CREATE_TAIL_OBJ ~24DEMI_CIRCLE 1
+		
+	# Caracteristics
+	BEHAVIOR= herbivore
+	TURN_ACCEL++ 8
+	ACCEL++ 10
+	;
+STOP

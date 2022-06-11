@@ -1,0 +1,22 @@
+GENE
+
+START
+	TITLE:       		bacteria
+	SEQUENCE:    agccgtt
+	DESCRIPTION: bacteria
+	UPGRADETAGS: nonavailable
+
+	DO
+	# Wireframe body
+	a <- CREATE_CAPSULE (13, 28)
+	CHANGE_BODY ~CELL_WIREFRAME a 0
+		
+	# Flagellum
+	CREATE_NEUTRAL_SPRITE ~FLAGELLUM (-32, 0)
+		
+	# Caracteristics
+	BEHAVIOR= herbivore
+	TURN_ACCEL++ 1
+	ACCEL++ 3
+	;
+STOP

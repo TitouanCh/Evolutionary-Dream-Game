@@ -1,0 +1,15 @@
+GENE
+
+START
+	TITLE:       		armored_tail
+	SEQUENCE:    cct
+	DESCRIPTION: +_armor
+	UPGRADETAGS: repeatable
+
+	COUNT
+	DO
+	CREATE_TAIL_OBJ ~24SQUARE 2
+	ACCEL++ 0.1
+	ARMOR++ 5
+	;
+STOP
