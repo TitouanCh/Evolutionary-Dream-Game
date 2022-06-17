@@ -167,12 +167,10 @@ func handle_all(entity_list, delta):
 				instance_list[entity_list[key][1]][0].visible = true
 			
 			if entity_list[key][2] == "organism":
-				instance_list[entity_list[key][1]][0].DNA = entity_list[key][3][1]
+				instance_list[entity_list[key][1]][0].DNA = entity_list[key][4]
 				instance_list[entity_list[key][1]][0]._once()
 				instance_list[entity_list[key][1]][0].rotation = randf() * PI * 2
 				instance_list[entity_list[key][1]][0].set_active(true)
-			
-				print(entity_list[key])
 		
 		# - If already instanciated
 		elif entity_list[key][1] + 1:
@@ -193,7 +191,17 @@ func handle_all(entity_list, delta):
 			
 			# - Regular Behaviors
 			else:
-				pass
+				# - Specifics
+				if entity_list[key][2] == "organism":
+					var closest_food = Vector2.ZERO
+					var smallest_distance = big_distance*2*2
+					for j in entity_list:
+						if entity_list[j][2] == "food":
+							var dist = entity_list[j][0].distance_squared_to(instance_list[entity_list[key][1]][0].position)
+							if dist < smallest_distance:
+								closest_food = entity_list[j][0]
+								smallest_distance = dist
+					instance_list[entity_list[key][1]][0].target = closest_food
 		
 		# - If not instanciated/OoB
 		else:
@@ -372,15 +380,15 @@ func spawn_npcs_randomly(n, f, xbor, ybor, dna):
 # - recolor everything TODO : Modify
 func recolor(p):
 	palette = p
-	for i in range(1, len(foodSprites)):
+	for i in range(0, len(foodSprites)):
 		foodSprites[i][0].modulate = p[2]
-	for i in range(1, len(debrisSprites)):
+	for i in range(0, len(debrisSprites)):
 		debrisSprites[i][0].modulate = p[1]
-	for i in range(1, len(explosionSystems)):
+	for i in range(0, len(explosionSystems)):
 		explosionSystems[i][0].modulate = p[2]
-	for i in range(1, len(npcInstances)):
+	for i in range(0, len(npcInstances)):
 		OrganismUtilities.recolor(npcInstances[i][0], p, npcInstances[i][0].body_sprite, npcInstances[i][0].neutral_sprites, npcInstances[i][0].tail, npcInstances[i][0].fangs)
-	for i in range(1, len(border_sprites)):
+	for i in range(0, len(border_sprites)):
 		border_sprites[i][0].modulate = p[0]
 
 # -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
