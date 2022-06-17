@@ -1,55 +1,79 @@
 extends Node2D
 
+# - Get other nodes
 onready var player = get_node("player")
 onready var soundmanager = get_parent().get_node("audioManager")
 
+# - Main parameters
+var palette = [Color(255), Color(255), Color(255), Color(255)]
+const big_distance = 524288
+const small_distance = 512
+
 var once = false
 
+# - Entities
+var entities = {
+
+}
+
+
 var food = []
-var foodSprites = [0]
+var foodSprites = []
 var foodText = preload("res://assets/sprites/16Circle.png")
 
 var debris = []
-var debrisSprites = [0]
+var debrisSprites = []
 var debrisText = preload("res://assets/sprites/1Pixel.png")
 
-var palette = [Color(255), Color(255), Color(255), Color(255)]
-
-var explosionSystems = [0]
+var explosionSystems = []
 var explosionScene = preload("res://bin/scenes/objects/explosionParticleSystem.tscn")
 
 # npc format, [position, dna, behavior, loaded]
 var npc = []
-var npcInstances = [0]
+var npcInstances = []
 var npcScene = preload("res://bin/scenes/objects/organism.tscn")
 
 var border_sprites = []
 var border_texture = preload("res://assets/sprites/32Border.png")
 
+var instance_annuaire = {
+	"food" : foodSprites,
+	"debris" : debrisSprites,
+	"explosionSystem" : explosionSystems,
+	"organism" : npcInstances,
+	"border" : border_sprites
+}
+
+# Currents
 var currents = []
 var currents_resolution = 64
 var current_force = 40
 var depth = 0
 
-var big_distance = 524288
-var small_distance = 512
 
 func _ready():
 	currents = make_currents(512)
 	player.setup("atgcatgc", "player", self, soundmanager)
 
 func _once():
-	setup_food_sprites(64, foodText)
-	setup_debris_sprites(128, debrisText)
-	setup_explosion_systems(8)
-	setup_border_sprites(58)
+	setup_sprites(64, foodText, foodSprites, palette[2])
+	setup_sprites(128, debrisText, debrisSprites, palette[1])
+	setup_sprites(58, border_texture, border_sprites, palette[0], -1)
+	
+	setup_scenes(8, explosionScene, explosionSystems, palette[2])
 	setup_npcs(8)
 	
-	spawn_food_randomly(600, food, Vector2(0, 16384), Vector2(0, 16384))
-	spawn_npcs_randomly(100, npc, Vector2(0, 16384), Vector2(0, 16384), "agccgtt")
-	spawn_npcs_randomly(10, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaatt")
+	spawn_randomly(600, entities, "food", [], Vector2(0, 16384), Vector2(0, 16384))
+	spawn_randomly(100, entities, "organism", ["herbivore", "agccgtt"], Vector2(0, 16384), Vector2(0, 16384))
+	spawn_randomly(10, entities, "organism", ["herbivore", "atgcatgctccaaatt"], Vector2(0, 16384), Vector2(0, 16384))
+	spawn_randomly(420, entities, "debris", [], Vector2(0, 200), Vector2(0, 200))
 	
-	spawn_debris(420, debris, Vector2(0, 200), Vector2(0, 200))
+#	spawn_food_randomly(600, food, Vector2(0, 16384), Vector2(0, 16384))
+#	spawn_npcs_randomly(100, npc, Vector2(0, 16384), Vector2(0, 16384), "agccgtt")
+#	spawn_npcs_randomly(10, npc, Vector2(0, 16384), Vector2(0, 16384), "atgcatgctccaaatt")
+#	spawn_debris(420, debris, Vector2(0, 200), Vector2(0, 200))
+
+#	print(entities)
 
 func progress(n):
 	depth += n
@@ -71,56 +95,109 @@ func _process(delta):
 		if !once:
 			_once()
 			once = true
-		handle_food(delta, food)
-		handle_npc(delta, npc, food)
-		handle_debris(delta, debris)
-		handle_border(border_sprites)
+#		handle_food(delta, food)
+#		handle_npc(delta, npc, food)
+#		handle_debris(delta, debris)
+#		handle_border(border_sprites)
+		handle_all(entities, delta)
 		
 		player.linear_velocity += get_current(currents, currents_resolution, player.position) * current_force * delta
 		update()
 
-func setup_food_sprites(n, text):
+# -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
+
+# -- Setup functions
+func setup_sprites(n, text, list, color, z = 0):
 	for i in range(n):
 		var a = Sprite.new()
 		self.add_child(a)
 		a.texture = text
 		a.visible = false
-		foodSprites.append(a)
-		a.modulate = palette[1]
+		list.append([a, false])
+		a.modulate = color
+		a.z_index = z
 
-func setup_debris_sprites(n, text):
+func setup_scenes(n, scene, list, color):
 	for i in range(n):
-		var a = Sprite.new()
+		var a = scene.instance()
 		self.add_child(a)
-		a.texture = text
-		a.visible = false
-		debrisSprites.append(a)
-		a.modulate = palette[2]
+		list.append([a, false])
+		a.modulate = color
 
-func setup_explosion_systems(n):
-	for i in range(n):
-		var a = explosionScene.instance()
-		self.add_child(a)
-		explosionSystems.append(a)
-		a.modulate = palette[2]
-
+# - Temporary ???
 func setup_npcs(n):
 	for i in range(n):
 		var a = npcScene.instance()
 		self.add_child(a)
-		npcInstances.append(a)
+		npcInstances.append([a, false])
 		a.setup("agccgtt", "herbivore", self, soundmanager)
 		a.set_active(false)
 		OrganismUtilities.recolor(a, palette, a.body_sprite, a.neutral_sprites, a.tail, a.fangs)
 
-func setup_border_sprites(n):
-	for i in range(n):
-		var a = Sprite.new()
-		self.add_child(a)
-		border_sprites.append(a)
-		a.modulate = palette[0]
-		a.texture = border_texture
-		a.z_index = -1
+# -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
+
+# -- Handle functions
+func handle_all(entity_list, delta):
+	for key in entity_list:
+		# - Currents
+		var current_mod = 1
+		
+		if entity_list[key][2] == "debris":
+			current_mod = 6
+		
+		entity_list[key][0] += get_current(currents, currents_resolution, entity_list[key][0]) * current_force * current_mod * delta
+		
+		# - Actual handle
+		var distance = entity_list[key][0].distance_squared_to(player.position)
+		
+		# - If close to player but not instanciated -> instanciate
+		if distance < big_distance and !(entity_list[key][1] + 1):
+			var instance_list = instance_annuaire[entity_list[key][2]]
+			
+			for i in range(len(instance_list)):
+				if !instance_list[i][1]:
+					entity_list[key][1] = i
+					instance_list[i][1] = true
+					break
+			
+			instance_list[entity_list[key][1]][0].position = entity_list[key][0]
+			
+			# - Specifics
+			if instance_list[entity_list[key][1]][0] is Sprite:
+				instance_list[entity_list[key][1]][0].visible = true
+			
+			if entity_list[key][2] == "organism":
+				instance_list[entity_list[key][1]][0].DNA = entity_list[key][3][1]
+				instance_list[entity_list[key][1]][0]._once()
+				instance_list[entity_list[key][1]][0].rotation = randf() * PI * 2
+				instance_list[entity_list[key][1]][0].set_active(true)
+			
+				print(entity_list[key])
+		
+		# - If already instanciated
+		elif entity_list[key][1] + 1:
+			var instance_list = instance_annuaire[entity_list[key][2]]
+			
+			# - If too far away
+			if instance_list[entity_list[key][1]][0].position.distance_squared_to(player.position) > big_distance:
+				entity_list[key][0] = instance_list[entity_list[key][1]][0].position
+				instance_list[entity_list[key][1]][1] = false
+				entity_list[key][1] = -1
+				
+				# - Specifics
+				if instance_list[entity_list[key][1]][0] is Sprite:
+					instance_list[entity_list[key][1]][0].visible = false
+				
+				if entity_list[key][2] == "organism":
+					instance_list[entity_list[key][1]][0].set_active(false)
+			
+			# - Regular Behaviors
+			else:
+				pass
+		
+		# - If not instanciated/OoB
+		else:
+			pass
 
 func handle_food(d, f):
 	var idx_remove_list = []
@@ -211,28 +288,6 @@ func handle_border(f):
 			else:
 				border_sprites[i].visible = true
 
-func spawn_food_randomly(n, f, xbor, ybor):
-	for i in range(n):
-		randomize()
-		f.append(Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))))
-
-func spawn_food(pos, f):
-	f.append(pos)
-
-func spawn_debris(n, f, xbor, ybor):
-	for i in range(n):
-		randomize()
-		f.append(Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))))
-
-func delete_debris(n, f):
-	for i in range(n):
-		f.remove(0)
-
-func spawn_npcs_randomly(n, f, xbor, ybor, dna):
-	for i in range(n):
-		randomize()
-		f.append([Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))), dna, "b", 0])
-
 func handle_npc(delta, npc, food):
 	var idx_remove_list = []
 	
@@ -279,20 +334,58 @@ func handle_npc(delta, npc, food):
 	for i in idx_remove_list:
 		npc.remove(i)
 
+# -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
+
+# -- Spawn functions
+func spawn_randomly(n, entity_list, what, type, xbor, ybor):
+	for i in range(n):
+		randomize()
+		var entity_position = Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))) 
+		entity_list[entity_list.size()] = [entity_position, -1, what] + type
+
+func spawn(coord, entity_list, what, type):
+	entity_list[entity_list.size()] = [coord, -1, what] + type
+
+func spawn_food_randomly(n, f, xbor, ybor):
+	for i in range(n):
+		randomize()
+		f.append(Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))))
+
+func spawn_food(pos, f):
+	f.append(pos)
+
+func spawn_debris(n, f, xbor, ybor):
+	for i in range(n):
+		randomize()
+		f.append(Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))))
+
+func spawn_npcs_randomly(n, f, xbor, ybor, dna):
+	for i in range(n):
+		randomize()
+		f.append([Vector2(xbor.x + (randf() * (xbor.y - xbor.x)), ybor.x + (randf() * (ybor.y - ybor.x))), dna, "b", 0])
+
+
+# -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
+
+# -- Other
+
+# - recolor everything TODO : Modify
 func recolor(p):
 	palette = p
 	for i in range(1, len(foodSprites)):
-		foodSprites[i].modulate = p[2]
+		foodSprites[i][0].modulate = p[2]
 	for i in range(1, len(debrisSprites)):
-		debrisSprites[i].modulate = p[1]
+		debrisSprites[i][0].modulate = p[1]
 	for i in range(1, len(explosionSystems)):
-		explosionSystems[i].modulate = p[2]
+		explosionSystems[i][0].modulate = p[2]
 	for i in range(1, len(npcInstances)):
-		OrganismUtilities.recolor(npcInstances[i], p, npcInstances[i].body_sprite, npcInstances[i].neutral_sprites, npcInstances[i].tail, npcInstances[i].fangs)
+		OrganismUtilities.recolor(npcInstances[i][0], p, npcInstances[i][0].body_sprite, npcInstances[i][0].neutral_sprites, npcInstances[i][0].tail, npcInstances[i][0].fangs)
 	for i in range(1, len(border_sprites)):
-		border_sprites[i].modulate = p[0]
+		border_sprites[i][0].modulate = p[0]
 
+# -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
 
+# -- Current functions
 func make_currents(size = 10):
 	var currents_table = []
 	

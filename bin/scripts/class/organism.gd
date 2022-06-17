@@ -142,7 +142,7 @@ func knock(from, force):
 	soundmanager.play_sound("knock")
 	linear_velocity += (self.position - from) * force
 
-# - Make the organism from the genome, using data (WIP)...
+# - Make the organism from the genome, using data
 func make_from_genome(dna):
 	reset()
 	
