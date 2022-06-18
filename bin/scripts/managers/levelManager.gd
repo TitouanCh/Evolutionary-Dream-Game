@@ -6,14 +6,14 @@ onready var soundmanager = get_parent().get_node("audioManager")
 
 # - Main parameters
 var palette = [Color(255), Color(255), Color(255), Color(255)]
-const big_distance = 524288
+const big_distance = 524288*2
 const small_distance = 512
 
 var once = false
 
 # - Entities
 var entities = {
-
+	-1 : [Vector2.ZERO, -1, "organism", "player"]
 }
 
 
@@ -49,6 +49,14 @@ var currents = []
 var currents_resolution = 64
 var current_force = 40
 var depth = 0
+
+var current_mod_table = {
+	"food" : 2,
+	"debris" : 6,
+	"explosionSystem" : 1,
+	"organism" : 1,
+	"border" : 1
+}
 
 
 func _ready():
@@ -98,7 +106,7 @@ func _process(delta):
 #		handle_food(delta, food)
 #		handle_npc(delta, npc, food)
 #		handle_debris(delta, debris)
-#		handle_border(border_sprites)
+		handle_border(border_sprites)
 		handle_all(entities, delta)
 		
 		player.linear_velocity += get_current(currents, currents_resolution, player.position) * current_force * delta
@@ -138,17 +146,14 @@ func setup_npcs(n):
 
 # -- Handle functions
 func handle_all(entity_list, delta):
+	
+	entity_list[-1][0] = player.position
+	var keys_to_erase = []
+	
 	for key in entity_list:
-		# - Currents
-		var current_mod = 1
-		
-		if entity_list[key][2] == "debris":
-			current_mod = 6
-		
-		entity_list[key][0] += get_current(currents, currents_resolution, entity_list[key][0]) * current_force * current_mod * delta
-		
 		# - Actual handle
 		var distance = entity_list[key][0].distance_squared_to(player.position)
+		var dead = false
 		
 		# - If close to player but not instanciated -> instanciate
 		if distance < big_distance and !(entity_list[key][1] + 1):
@@ -166,7 +171,7 @@ func handle_all(entity_list, delta):
 			if instance_list[entity_list[key][1]][0] is Sprite:
 				instance_list[entity_list[key][1]][0].visible = true
 			
-			if entity_list[key][2] == "organism":
+			if entity_list[key][2] == "organism" and entity_list[key][3] != "player":
 				instance_list[entity_list[key][1]][0].DNA = entity_list[key][4]
 				instance_list[entity_list[key][1]][0]._once()
 				instance_list[entity_list[key][1]][0].rotation = randf() * PI * 2
@@ -178,7 +183,7 @@ func handle_all(entity_list, delta):
 			
 			# - If too far away
 			if instance_list[entity_list[key][1]][0].position.distance_squared_to(player.position) > big_distance:
-				entity_list[key][0] = instance_list[entity_list[key][1]][0].position
+				
 				instance_list[entity_list[key][1]][1] = false
 				entity_list[key][1] = -1
 				
@@ -191,7 +196,32 @@ func handle_all(entity_list, delta):
 			
 			# - Regular Behaviors
 			else:
+				
+				# - Currents
+				var current_mod = current_mod_table[entity_list[key][2]]
+
+				instance_list[entity_list[key][1]][0].position += get_current(currents, currents_resolution, entity_list[key][0]) * current_force * current_mod * delta
+				
 				# - Specifics
+				if entity_list[key][2] == "food":
+					for entity in instance_annuaire["organism"] + [[player]]:
+						if entity_list[key][0].distance_squared_to(entity[0].position) < small_distance and entity_list[1]:
+#							explosionSystems[explosionSystems[0] + 1].position = f[i]
+#							explosionSystems[explosionSystems[0] + 1].emitting = true
+#							explosionSystems[explosionSystems[0] + 1].process_material.set_shader_param("impact", entity.linear_velocity)
+							dead = entity[0].linear_velocity
+							print(entity)
+#							idx_remove_list.append(i)
+							soundmanager.play_sound("eat")
+							entity[0].scaleInfo[0] = 0
+							entity[0].belly += 1
+							entity[0].fang_speed += 40
+							
+#							explosionSystems[0] += 1
+#							if explosionSystems[0] == len(explosionSystems) - 1:
+#								explosionSystems[0] = 0
+							break
+				
 				if entity_list[key][2] == "organism":
 					var closest_food = Vector2.ZERO
 					var smallest_distance = big_distance*2*2
@@ -202,10 +232,38 @@ func handle_all(entity_list, delta):
 								closest_food = entity_list[j][0]
 								smallest_distance = dist
 					instance_list[entity_list[key][1]][0].target = closest_food
-		
+				
+				if entity_list[key][2] == "debris":
+					instance_list[entity_list[key][1]][0].position += Vector2(randf() * 3 - 1.5, randf() * 3 - 1.5)
+			
+			entity_list[key][0] = instance_list[entity_list[key][1]][0].position
+	
 		# - If not instanciated/OoB
 		else:
-			pass
+			# - Currents
+			var current_mod = current_mod_table[entity_list[key][2]]
+			entity_list[key][0] += get_current(currents, currents_resolution, entity_list[key][0]) * current_force * current_mod * delta
+				
+			# - Specifics
+			if entity_list[key][2] == "debris":
+				entity_list[key][0] = Vector2(randf() * 4000 - 2000 + player.position.x, randf() * 4000 - 2000 + player.position.y)
+		
+		if dead:
+			var instance_list = instance_annuaire[entity_list[key][2]]
+			instance_list[entity_list[key][1]][0].visible = false
+			instance_list[entity_list[key][1]][1] = false
+			entity_list[key][1] = -1
+			
+			for explosion in explosionSystems:
+				if !explosion[1]:
+					explosion[0].position = entity_list[key][0]
+					explosion[0].emitting = true
+					explosion[0].process_material.set_shader_param("impact", dead)
+			
+			keys_to_erase.append(key)
+	
+	for key in keys_to_erase:
+		entity_list.erase(key)
 
 func handle_food(d, f):
 	var idx_remove_list = []
@@ -262,39 +320,39 @@ func handle_debris(d, f):
 func handle_border(f):
 	if player.position.x < 900:
 		for i in range(0, 29):
-			border_sprites[i].position = Vector2(-16, player.position.y - 450 + i * 32)
+			border_sprites[i][0].position = Vector2(-16, player.position.y - 450 + i * 32)
 		
-			if border_sprites[i].position.y < -16 or border_sprites[i].position.y > 16384 + 16:
-					border_sprites[i].visible = false
+			if border_sprites[i][0].position.y < -16 or border_sprites[i][0].position.y > 16384 + 16:
+					border_sprites[i][0].visible = false
 			else:
-				border_sprites[i].visible = true
+				border_sprites[i][0].visible = true
 	
 	if player.position.x > 16384 - 900:
 		for i in range(0, 29):
-			border_sprites[i].position = Vector2(16384 + 16, player.position.y - 450 + i * 32)
+			border_sprites[i][0].position = Vector2(16384 + 16, player.position.y - 450 + i * 32)
 		
-			if border_sprites[i].position.y < -16 or border_sprites[i].position.y > 16384 + 16:
-					border_sprites[i].visible = false
+			if border_sprites[i][0].position.y < -16 or border_sprites[i][0].position.y > 16384 + 16:
+					border_sprites[i][0].visible = false
 			else:
-				border_sprites[i].visible = true
+				border_sprites[i][0].visible = true
 	
 	if player.position.y < 900:
 		for i in range(29, 58):
-			border_sprites[i].position = Vector2(player.position.x - 450 + (i - 29) * 32, -16) 
+			border_sprites[i][0].position = Vector2(player.position.x - 450 + (i - 29) * 32, -16) 
 			
-			if border_sprites[i].position.x < -16 or border_sprites[i].position.x > 16384 + 16:
-				border_sprites[i].visible = false
+			if border_sprites[i][0].position.x < -16 or border_sprites[i][0].position.x > 16384 + 16:
+				border_sprites[i][0].visible = false
 			else:
-				border_sprites[i].visible = true
+				border_sprites[i][0].visible = true
 	
 	if player.position.y > 16384 - 900:
 		for i in range(29, 58):
-			border_sprites[i].position = Vector2(player.position.x - 450 + (i - 29) * 32, 16384 + 16) 
+			border_sprites[i][0].position = Vector2(player.position.x - 450 + (i - 29) * 32, 16384 + 16) 
 			
-			if border_sprites[i].position.x < -16 or border_sprites[i].position.x > 16384 + 16:
-				border_sprites[i].visible = false
+			if border_sprites[i][0].position.x < -16 or border_sprites[i][0].position.x > 16384 + 16:
+				border_sprites[i][0].visible = false
 			else:
-				border_sprites[i].visible = true
+				border_sprites[i][0].visible = true
 
 func handle_npc(delta, npc, food):
 	var idx_remove_list = []

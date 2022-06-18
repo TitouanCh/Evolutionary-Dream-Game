@@ -8,7 +8,7 @@ START
 
 	DO
 	# Crusty body
-	a <- CREATE_RECT (13, 28)
+	a <- CREATE_RECT (13, 13)
 	CHANGE_BODY ~32HEAVY_SQUARE a 90
 		
 	# Shrimp tail

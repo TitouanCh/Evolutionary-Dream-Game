@@ -163,7 +163,7 @@ func make_from_genome(dna):
 # - Process
 func _process(delta):
 	
-	if !Global.paused:
+	if !Global.paused and active:
 		
 		# . player behavior
 		if behavior == "player":
@@ -185,18 +185,13 @@ func _process(delta):
 # - Physics Process
 func _physics_process(delta):
 	
-	if !Global.paused and once:
+	if !Global.paused and once and active:
 		
 		# . player behavior
 		if behavior == "player":
-			target = get_global_mouse_position() - self.global_position
+			target = get_global_mouse_position()
 			if !once:
 				position.x += 32 * delta
-		# ..
-		
-		# . herbivore behavior
-		if behavior == "herbivore":
-			target = target - self.global_position
 		# ..
 		
 		OrganismUtilities.handle_tail(self, tail, linear_velocity, 0.13, 8, 0.85, tail_Ttime, delta)
@@ -209,7 +204,7 @@ func _physics_process(delta):
 		
 		set_health = OrganismUtilities.handle_health(self, set_health, health, delta)
 		
-		linear_velocity = OrganismUtilities.move_toward_target(self, target, linear_velocity, accel, turn_accel, friction, delta)
+		linear_velocity = OrganismUtilities.move_toward_target(self, target  - self.global_position, linear_velocity, accel, turn_accel, friction, delta)
 
 func _draw():
 	OrganismUtilities.draw_all(self, whiskers, set_health, health)
