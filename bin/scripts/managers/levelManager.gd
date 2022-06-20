@@ -146,7 +146,6 @@ func setup_npcs(n):
 
 # -- Handle functions
 func handle_all(entity_list, delta):
-	
 	entity_list[-1][0] = player.position
 	var keys_to_erase = []
 	
@@ -204,13 +203,13 @@ func handle_all(entity_list, delta):
 				
 				# - Specifics
 				if entity_list[key][2] == "food":
-					for entity in instance_annuaire["organism"] + [[player]]:
-						if entity_list[key][0].distance_squared_to(entity[0].position) < small_distance and entity_list[1]:
+					for entity in instance_annuaire["organism"] + [[player, true]]:
+						if entity_list[key][0].distance_squared_to(entity[0].position) < small_distance and entity[1]:
 #							explosionSystems[explosionSystems[0] + 1].position = f[i]
 #							explosionSystems[explosionSystems[0] + 1].emitting = true
 #							explosionSystems[explosionSystems[0] + 1].process_material.set_shader_param("impact", entity.linear_velocity)
 							dead = entity[0].linear_velocity
-							print(entity)
+#							print(entity)
 #							idx_remove_list.append(i)
 							soundmanager.play_sound("eat")
 							entity[0].scaleInfo[0] = 0

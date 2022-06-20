@@ -1,12 +1,13 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://bin/scenes/objects/organism.tscn" type="PackedScene" id=1]
 [ext_resource path="res://bin/scenes/managers/levelManager.tscn" type="PackedScene" id=2]
 [ext_resource path="res://bin/scenes/managers/biomeManager.tscn" type="PackedScene" id=3]
 [ext_resource path="res://bin/scenes/managers/UIManager.tscn" type="PackedScene" id=4]
+[ext_resource path="res://bin/scenes/managers/debugManager.tscn" type="PackedScene" id=5]
+[ext_resource path="res://bin/etc/pixelia.tres" type="Theme" id=6]
 [ext_resource path="res://bin/scenes/managers/audioManager.tscn" type="PackedScene" id=27]
 [ext_resource path="res://bin/etc/theme.tres" type="Theme" id=29]
-[ext_resource path="res://bin/etc/monotheme.tres" type="Theme" id=30]
 
 [node name="main" type="Node2D"]
 
@@ -32,7 +33,7 @@ margin_left = -400.0
 margin_top = 35.0
 margin_right = 400.0
 margin_bottom = 835.0
-theme = ExtResource( 30 )
+theme = ExtResource( 6 )
 bbcode_enabled = true
 bbcode_text = "[center]click to start[/center]"
 text = "click to start"
@@ -54,3 +55,5 @@ mouse_filter = 2
 muted = true
 
 [node name="UIManager" parent="." instance=ExtResource( 4 )]
+
+[node name="debugManager" parent="." instance=ExtResource( 5 )]
