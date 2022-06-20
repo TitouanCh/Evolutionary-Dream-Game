@@ -1,15 +1,14 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://bin/scenes/meta/main.tscn" type="PackedScene" id=1]
+[ext_resource path="res://bin/scripts/meta/flask.gd" type="Script" id=2]
 
 [node name="flask" type="Node2D"]
+script = ExtResource( 2 )
 
 [node name="viewportContainer" type="ViewportContainer" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="ether" type="Viewport" parent="viewportContainer"]
 size = Vector2( 900, 900 )

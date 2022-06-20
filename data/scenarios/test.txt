@@ -2,8 +2,6 @@ SCENARIO
 
 START
 	TITLE: test
-	PLAYER_POSITION: (0, 0)
-	PLAYER_DNA: atgcatgctcctcc
 
 	DO
 	CLEAR_ENTITIES
@@ -11,5 +9,6 @@ START
 	SPAWN (100, 100) food
 	SPAWN (100, -100) food
 	MOVE_PLAYER (0, 0)
+	SETUP_PLAYER atgcatgctcctcc
 	;
 STOP

@@ -1,0 +1,42 @@
+SCENARIO
+
+START
+	TITLE: grid_test
+
+	DO
+	CLEAR_ENTITIES
+	
+	SPAWN (0, 0) food
+	SPAWN (100, 0) food
+	SPAWN (200, 0) food
+	SPAWN (300, 0) food
+	SPAWN (400, 0) food
+
+	SPAWN (0, 100) food
+	SPAWN (100, 100) food
+	SPAWN (200, 100) food
+	SPAWN (300, 100) food
+	SPAWN (400, 100) food
+
+	SPAWN (0, 200) food
+	SPAWN (100, 200) food
+	SPAWN (200, 200) food
+	SPAWN (300, 200) food
+	SPAWN (400, 200) food
+
+	SPAWN (0, 300) food
+	SPAWN (100, 300) food
+	SPAWN (200, 300) food
+	SPAWN (300, 300) food
+	SPAWN (400, 300) food
+
+	SPAWN (0, 400) food
+	SPAWN (100, 400) food
+	SPAWN (200, 400) food
+	SPAWN (300, 400) food
+	SPAWN (400, 400) food
+	
+	MOVE_PLAYER (250, 250)
+	SETUP_PLAYER atgcatgctcctcc
+	;
+STOP

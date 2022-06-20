@@ -78,6 +78,9 @@ func setup(dna, b, lm, sm):
 	DNA = dna
 	levelmanager = lm
 	soundmanager = sm
+	
+	if once:
+		make_from_genome(DNA)
 
 func _once():
 	make_from_genome(DNA)

@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://bin/scripts/managers/debugManager.gd" type="Script" id=1]
 [ext_resource path="res://bin/etc/debug.tres" type="Theme" id=2]
 [ext_resource path="res://assets/sprites/DEBUG_16CURSOR.png" type="Texture" id=3]
 [ext_resource path="res://assets/sprites/16Arrow.png" type="Texture" id=4]
+[ext_resource path="res://assets/sprites/16CROSS.png" type="Texture" id=5]
 
 [node name="debugManager" type="Node2D"]
 script = ExtResource( 1 )
@@ -21,7 +22,7 @@ margin_bottom = 80.0
 
 [node name="background" type="Panel" parent="scenarioTester"]
 margin_right = 186.0
-margin_bottom = 48.0
+margin_bottom = 50.0
 mouse_filter = 2
 theme = ExtResource( 2 )
 
@@ -55,6 +56,86 @@ theme = ExtResource( 2 )
 enabled_focus_mode = 0
 icon = ExtResource( 4 )
 
+[node name="entityScanner" type="Control" parent="."]
+margin_left = 185.0
+margin_top = 40.0
+margin_right = 225.0
+margin_bottom = 80.0
+
+[node name="background" type="Panel" parent="entityScanner"]
+margin_right = 127.0
+margin_bottom = 60.0
+mouse_filter = 2
+theme = ExtResource( 2 )
+
+[node name="background_bis" type="Panel" parent="entityScanner"]
+margin_top = 5.0
+margin_right = 127.0
+margin_bottom = 60.0
+mouse_filter = 2
+theme = ExtResource( 2 )
+
+[node name="label" type="Label" parent="entityScanner"]
+margin_left = 4.0
+margin_top = 9.0
+margin_right = 123.0
+margin_bottom = 25.0
+theme = ExtResource( 2 )
+text = "Entity Scanner"
+align = 1
+
+[node name="start" type="Button" parent="entityScanner"]
+margin_left = 53.0
+margin_top = 32.0
+margin_right = 71.0
+margin_bottom = 52.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+theme = ExtResource( 2 )
+enabled_focus_mode = 0
+icon = ExtResource( 4 )
+
+[node name="output" type="Control" parent="entityScanner"]
+visible = false
+margin_left = 214.0
+margin_right = 254.0
+margin_bottom = 40.0
+
+[node name="background" type="Panel" parent="entityScanner/output"]
+margin_right = 400.0
+margin_bottom = 360.0
+mouse_filter = 2
+theme = ExtResource( 2 )
+
+[node name="text" type="RichTextLabel" parent="entityScanner/output"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 395.0
+margin_bottom = 332.0
+theme = ExtResource( 2 )
+text = "lol"
+
+[node name="border" type="Label" parent="entityScanner/output"]
+margin_left = 2.0
+margin_top = 335.0
+margin_right = 398.0
+margin_bottom = 351.0
+theme = ExtResource( 2 )
+text = "............................................................................................."
+
+[node name="stop" type="Button" parent="entityScanner/output"]
+margin_left = 378.0
+margin_top = 336.0
+margin_right = 396.0
+margin_bottom = 356.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+theme = ExtResource( 2 )
+enabled_focus_mode = 0
+icon = ExtResource( 5 )
+
 [node name="title" type="Control" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
@@ -86,3 +167,5 @@ z_index = 1
 texture = ExtResource( 3 )
 
 [connection signal="pressed" from="scenarioTester/start" to="." method="_on_scenarioTester_start_pressed"]
+[connection signal="pressed" from="entityScanner/start" to="." method="_on_entityScanner_start_pressed"]
+[connection signal="pressed" from="entityScanner/output/stop" to="." method="_on_entityScanner_stop_pressed"]

@@ -1,8 +1,9 @@
-[gd_resource type="Theme" load_steps=18 format=2]
+[gd_resource type="Theme" load_steps=24 format=2]
 
 [ext_resource path="res://assets/fonts/Pixellari.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://assets/sprites/DEBUG_16BCIRCLE_CHECKED.png" type="Texture" id=2]
 [ext_resource path="res://assets/sprites/DEBUG_16BCIRCLE.png" type="Texture" id=3]
+[ext_resource path="res://assets/sprites/16SQUARE.png" type="Texture" id=4]
 
 [sub_resource type="StyleBoxFlat" id=3]
 bg_color = Color( 1, 0, 0, 1 )
@@ -77,6 +78,30 @@ border_color = Color( 1, 1, 1, 1 )
 [sub_resource type="StyleBoxFlat" id=14]
 bg_color = Color( 1, 1, 1, 1 )
 
+[sub_resource type="StyleBoxTexture" id=16]
+texture = ExtResource( 4 )
+region_rect = Rect2( 0, 0, 16, 16 )
+modulate_color = Color( 1, 1, 1, 0.901961 )
+
+[sub_resource type="StyleBoxTexture" id=17]
+texture = ExtResource( 4 )
+region_rect = Rect2( 0, 0, 16, 16 )
+modulate_color = Color( 0.117647, 0.117647, 0.117647, 1 )
+
+[sub_resource type="StyleBoxTexture" id=18]
+texture = ExtResource( 4 )
+region_rect = Rect2( 0, 0, 16, 16 )
+modulate_color = Color( 0.380392, 0.392157, 0.360784, 1 )
+
+[sub_resource type="StyleBoxTexture" id=15]
+texture = ExtResource( 4 )
+region_rect = Rect2( 0, 0, 16, 16 )
+modulate_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="StyleBoxTexture" id=19]
+texture = ExtResource( 4 )
+region_rect = Rect2( 0, 0, 16, 16 )
+
 [sub_resource type="DynamicFont" id=1]
 font_data = ExtResource( 1 )
 
@@ -107,3 +132,8 @@ PopupMenu/styles/labeled_separator_left = SubResource( 11 )
 PopupMenu/styles/panel = SubResource( 12 )
 TabContainer/styles/panel = SubResource( 13 )
 Tree/styles/bg = SubResource( 14 )
+VScrollBar/styles/grabber = SubResource( 16 )
+VScrollBar/styles/grabber_highlight = SubResource( 17 )
+VScrollBar/styles/grabber_pressed = SubResource( 18 )
+VScrollBar/styles/scroll = SubResource( 15 )
+VScrollBar/styles/scroll_focus = SubResource( 19 )

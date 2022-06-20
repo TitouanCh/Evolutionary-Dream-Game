@@ -13,7 +13,6 @@ var once = false
 
 # - Entities
 var entities = {
-	-1 : [Vector2.ZERO, -1, "organism", "player"]
 }
 
 
@@ -146,7 +145,7 @@ func setup_npcs(n):
 
 # -- Handle functions
 func handle_all(entity_list, delta):
-	entity_list[-1][0] = player.position
+#	entity_list[-1][0] = player.position
 	var keys_to_erase = []
 	
 	for key in entity_list:
@@ -187,11 +186,13 @@ func handle_all(entity_list, delta):
 				entity_list[key][1] = -1
 				
 				# - Specifics
-				if instance_list[entity_list[key][1]][0] is Sprite:
-					instance_list[entity_list[key][1]][0].visible = false
-				
-				if entity_list[key][2] == "organism":
-					instance_list[entity_list[key][1]][0].set_active(false)
+#				if instance_list[entity_list[key][1]][0] is Sprite:
+#					instance_list[entity_list[key][1]][0].visible = false
+#
+#				if entity_list[key][2] == "organism":
+#					instance_list[entity_list[key][1]][0].set_active(false)
+				LevelUtilities.deactivate(instance_list[entity_list[key][1]][0], entity_list[key][2])
+				continue
 			
 			# - Regular Behaviors
 			else:
@@ -252,7 +253,7 @@ func handle_all(entity_list, delta):
 			instance_list[entity_list[key][1]][0].visible = false
 			instance_list[entity_list[key][1]][1] = false
 			entity_list[key][1] = -1
-			
+
 			for explosion in explosionSystems:
 				if !explosion[1]:
 					explosion[0].position = entity_list[key][0]
