@@ -1,0 +1,12 @@
+GENE
+
+START
+	TITLE:       		gooey
+	SEQUENCE:    gtttcttttg
+	DESCRIPTION: bacteria
+	UPGRADETAGS: nonavailable
+
+	DO
+	CREATE_CIRC_MEMBRANE 20 40
+	;
+STOP

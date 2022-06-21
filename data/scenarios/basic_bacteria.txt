@@ -1,0 +1,16 @@
+SCENARIO
+
+START
+	TITLE: basic_bacteria
+
+	DO
+	CLEAR_ENTITIES
+	
+	SPAWN (800, 800) organism ["herbivore", "agccgttgttaacgagtttcttttg"]
+	SPAWN (400, 400) food
+	SPAWN (600, 400) food
+	
+	MOVE_PLAYER (250, 250)
+	SETUP_PLAYER atgcatgctcctcc
+	;
+STOP

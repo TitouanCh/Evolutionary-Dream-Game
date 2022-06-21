@@ -232,6 +232,9 @@ func handle_all(entity_list, delta):
 								closest_food = entity_list[j][0]
 								smallest_distance = dist
 					instance_list[entity_list[key][1]][0].target = closest_food
+					
+					if instance_list[entity_list[key][1]][0].dead:
+						dead = instance_list[entity_list[key][1]][0].linear_velocity
 				
 				if entity_list[key][2] == "debris":
 					instance_list[entity_list[key][1]][0].position += Vector2(randf() * 3 - 1.5, randf() * 3 - 1.5)
@@ -259,6 +262,9 @@ func handle_all(entity_list, delta):
 					explosion[0].position = entity_list[key][0]
 					explosion[0].emitting = true
 					explosion[0].process_material.set_shader_param("impact", dead)
+					
+					if entity_list[key][2] == "organism":
+						explosion[0].process_material.set_shader_param("sprite", instance_list[entity_list[key][1]][0].get_node("sprite").texture)
 			
 			keys_to_erase.append(key)
 	

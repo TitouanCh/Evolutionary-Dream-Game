@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://assets/sprites/1Pixel.png" type="Texture" id=1]
-[ext_resource path="res://assets/sprites/16Circle.png" type="Texture" id=2]
+[ext_resource path="res://assets/sprites/CELL_WIREFRAME.png" type="Texture" id=2]
 
 [sub_resource type="Shader" id=1]
 code = "// NOTE: Shader automatically converted from Godot Engine 3.4.2.stable's ParticlesMaterial.

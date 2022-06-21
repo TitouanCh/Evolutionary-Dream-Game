@@ -67,6 +67,9 @@ var fangs = []
 # - Hurt Zones
 var hurt_zones = []
 
+# - Membrane
+var membrane = []
+
 # -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
 
 # -- Basic/Essential Functions
@@ -138,6 +141,7 @@ func take_damage(amount):
 	health -= amount - amount * (-(1 / (armor / 20 + 1)) + 1)
 	if health < 0:
 		health = 0
+		dead = true
 
 # - Knockback
 # get knocked from a point
@@ -201,6 +205,8 @@ func _physics_process(delta):
 		tail_Ttime += delta
 		
 		OrganismUtilities.handle_whiskers(self, whiskers, 20, delta)
+		
+		OrganismUtilities.handle_membrane(self, delta)
 		
 		fang_speed = OrganismUtilities.handle_fangs(self, fangs, fang_speed, base_fang_speed, fang_Ttime, delta)
 		fang_Ttime += delta * fang_speed

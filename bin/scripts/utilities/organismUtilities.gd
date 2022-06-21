@@ -94,6 +94,10 @@ static func create_fang(this, img, position, arr = [false, false]):
 	
 	this.fangs.append(a)
 
+static func create_circ_membrane(this, r, number_of_points):
+	this.body_sprite.visible = false
+	this.membrane = AdvMath.make_circle(r, number_of_points, this.position)
+
 static func change_fang_texture(this, img, idx):
 	this.fangs[idx].texture = img
 
@@ -152,6 +156,13 @@ static func handle_fangs(this, fang_list, fang_speed, base_fang_speed, total_del
 	fang_speed = lerp(fang_speed, base_fang_speed, delta * 2)
 	return fang_speed
 
+static func handle_membrane(this, delta):
+	# TEMPORARY
+	var targets = AdvMath.make_circle(20, 40, this.position)
+
+	for i in range(len(this.membrane)):
+		this.membrane[i] = this.membrane[i].linear_interpolate(targets[i], delta * (800/this.membrane[i].distance_to(this.position)) )
+
 static func handle_health(this, set_health, health, delta):
 	if abs(set_health) < 0.1:
 		this.dead = true
@@ -169,8 +180,8 @@ static func recolor(this, palette, body_sprite, neutral_sprites, tail_list, fang
 		f.modulate = palette[3]
 
 static func draw_all(this, whisker_list, set_health, health):
-	if len(whisker_list) > 0:
-		draw_whiskers(this, whisker_list)
+	draw_whiskers(this, whisker_list)
+	draw_membrane(this)
 	draw_health(this, set_health, health)
 
 static func draw_whiskers(this, whisker_list):
@@ -180,6 +191,12 @@ static func draw_whiskers(this, whisker_list):
 				this.draw_line(whisker_list[i][3], (whisker_list[i][0][j + 1] - this.position).rotated(-this.rotation), this.palette[1])
 			else:
 				this.draw_line((whisker_list[i][0][j] - this.position).rotated(-this.rotation), (whisker_list[i][0][j + 1] - this.position).rotated(-this.rotation), this.palette[1])
+
+static func draw_membrane(this):
+	if len(this.membrane) > 0:
+		for i in range(len(this.membrane) - 1):
+			this.draw_line((this.membrane[i] - this.position).rotated(-this.rotation), (this.membrane[i + 1] - this.position).rotated(-this.rotation), this.palette[2])
+		this.draw_line((this.membrane[len(this.membrane) - 1] - this.position).rotated(-this.rotation), (this.membrane[0] - this.position).rotated(-this.rotation), this.palette[2])
 
 static func draw_health(this, set_health, health):
 	if abs(set_health - health) > 0.1:
