@@ -3,6 +3,7 @@ extends Node2D
 onready var player = get_parent().get_node("levelManager").get_node("player")
 onready var levelManager = get_parent().get_node("levelManager")
 
+var visible_collision_shapes = false
 
 export var width = 400
 export var height = 400
@@ -28,7 +29,8 @@ func _process(delta):
 			Global.paused = false
 	
 	if Input.is_action_just_pressed("test"):
-		print(levelManager.entities)
+		get_tree().set_debug_collisions_hint(!visible_collision_shapes)
+		visible_collision_shapes = !visible_collision_shapes
 
 func setup_window():
 	$background.rect_size = Vector2(width, height)

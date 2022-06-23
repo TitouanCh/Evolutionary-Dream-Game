@@ -70,6 +70,9 @@ var hurt_zones = []
 # - Membrane
 var membrane = []
 
+# - Jellies
+var jellies = []
+
 # -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
 
 # -- Basic/Essential Functions
@@ -132,7 +135,7 @@ func reset():
 # deal damage to another organism
 func deal_damage(body):
 	fang_speed += 40
-	if body != self:
+	if body != self and OrganismUtilities.organism_check(body):
 		body.knock(position, 4 + linear_velocity.length() / 25)
 		body.take_damage(attack)
 
@@ -162,6 +165,10 @@ func make_from_genome(dna):
 				OrganismUtilities.execute_gene(self, Global.geneDatabase[gene])
 	
 	if behavior_override != "none": behavior = behavior_override
+
+func debris(debrismanager):
+#	debrismanager.create_rigid_body(position, rotation, body_sprite.texture, collisionShape.shape, body_sprite.rotation_degrees)
+	debrismanager.create_debris_circ(self.position, self.linear_velocity, 10)
 
 # -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
 
@@ -207,6 +214,7 @@ func _physics_process(delta):
 		OrganismUtilities.handle_whiskers(self, whiskers, 20, delta)
 		
 		OrganismUtilities.handle_membrane(self, delta)
+		OrganismUtilities.handle_jellies(self, delta)
 		
 		fang_speed = OrganismUtilities.handle_fangs(self, fangs, fang_speed, base_fang_speed, fang_Ttime, delta)
 		fang_Ttime += delta * fang_speed

@@ -39,6 +39,11 @@ static func create_capsule(dimensions):
 	a.height = dimensions.y
 	return a
 
+static func create_circle(radius):
+	var a = CircleShape2D.new()
+	a.radius = radius
+	return a
+
 static func create_neutral_sprite(this, text, position):
 	var a
 	
@@ -97,6 +102,27 @@ static func create_fang(this, img, position, arr = [false, false]):
 static func create_circ_membrane(this, r, number_of_points):
 	this.body_sprite.visible = false
 	this.membrane = AdvMath.make_circle(r, number_of_points, this.position)
+
+static func create_jelly(this, text, position):
+	var a
+	
+	# Regular Sprite
+	if text is StreamTexture:
+		a = Sprite.new()
+		a.texture = text
+	
+	# Animated Sprite
+	if text is SpriteFrames:
+		a = AnimatedSprite.new()
+		a.frames = text
+		a.playing = true
+		
+	this.add_child(a)
+	a.position = position
+	a.modulate = this.palette[1]
+	
+	# ACTUAL, TARGET
+	this.jellies.append([a, position + this.position, position])
 
 static func change_fang_texture(this, img, idx):
 	this.fangs[idx].texture = img
@@ -162,6 +188,11 @@ static func handle_membrane(this, delta):
 
 	for i in range(len(this.membrane)):
 		this.membrane[i] = this.membrane[i].linear_interpolate(targets[i], delta * (800/this.membrane[i].distance_to(this.position)) )
+
+static func handle_jellies(this, delta):
+	for i in range(len(this.jellies)):
+		this.jellies[i][1] = this.jellies[i][1].linear_interpolate(this.jellies[i][2].rotated(this.rotation) + this.position, delta * this.jellies[i][1].distance_to(this.position))
+		this.jellies[i][0].position = AdvMath.to_local(this, this.jellies[i][1])
 
 static func handle_health(this, set_health, health, delta):
 	if abs(set_health) < 0.1:
@@ -254,3 +285,7 @@ static func scaling_effect(this, body_sprite, scale_timer, delta, curve = [1, 3,
 			return -1
 		return scale_timer + delta
 	return -1
+
+static func organism_check(obj):
+	# Needs improvements
+	return obj.get_class() == "KinematicBody2D"

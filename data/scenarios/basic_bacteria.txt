@@ -6,7 +6,7 @@ START
 	DO
 	CLEAR_ENTITIES
 	
-	SPAWN (800, 800) organism ["herbivore", "agccgttgttaacgagtttcttttg"]
+	SPAWN (800, 800) organism ["herbivore", "gttaacgagtttcttttg"]
 	SPAWN (400, 400) food
 	SPAWN (600, 400) food
 	

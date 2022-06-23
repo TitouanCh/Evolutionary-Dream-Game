@@ -3,6 +3,7 @@ extends Node2D
 # - Get other nodes
 onready var player = get_node("player")
 onready var soundmanager = get_parent().get_node("audioManager")
+onready var debrismanager = get_parent().get_node("debrisManager")
 
 # - Main parameters
 var palette = [Color(255), Color(255), Color(255), Color(255)]
@@ -253,18 +254,21 @@ func handle_all(entity_list, delta):
 		
 		if dead:
 			var instance_list = instance_annuaire[entity_list[key][2]]
-			instance_list[entity_list[key][1]][0].visible = false
-			instance_list[entity_list[key][1]][1] = false
-			entity_list[key][1] = -1
+			
+			if instance_list[entity_list[key][1]][0] is Organism:
+				instance_list[entity_list[key][1]][0].debris(debrismanager)
+				instance_list[entity_list[key][1]][0].visible = false
+				instance_list[entity_list[key][1]][1] = false
+				entity_list[key][1] = -1
 
-			for explosion in explosionSystems:
-				if !explosion[1]:
-					explosion[0].position = entity_list[key][0]
-					explosion[0].emitting = true
-					explosion[0].process_material.set_shader_param("impact", dead)
-					
-					if entity_list[key][2] == "organism":
-						explosion[0].process_material.set_shader_param("sprite", instance_list[entity_list[key][1]][0].get_node("sprite").texture)
+#			for explosion in explosionSystems:
+#				if !explosion[1]:
+#					explosion[0].position = entity_list[key][0]
+#					explosion[0].emitting = true
+#					explosion[0].process_material.set_shader_param("impact", dead)
+#
+#					if entity_list[key][2] == "organism":
+#						explosion[0].process_material.set_shader_param("sprite", instance_list[entity_list[key][1]][0].get_node("sprite").texture)
 			
 			keys_to_erase.append(key)
 	
