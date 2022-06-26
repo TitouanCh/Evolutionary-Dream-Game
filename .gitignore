@@ -1,5 +1,7 @@
 .import/
-assets/
+assets/*
 export/
-!/assets/art/
-!assets/art/*
+*.import
+
+!assets/*
+!assets/art/**
