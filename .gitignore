@@ -3,5 +3,4 @@ assets/*
 export/
 *.import
 
-!assets/*
 !assets/art/**
