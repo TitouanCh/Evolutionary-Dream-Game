@@ -83,6 +83,7 @@ func _once():
 
 #	print(entities)
 
+# TODO : Remove this...
 func progress(n):
 	depth += n
 	current_force += 5
@@ -114,7 +115,7 @@ func _process(delta):
 
 # -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
 
-# -- Setup functions
+# -- Setup functions : Move this to utils ?
 func setup_sprites(n, text, list, color, z = 0):
 	for i in range(n):
 		var a = Sprite.new()
@@ -412,7 +413,7 @@ func handle_npc(delta, npc, food):
 
 # -----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----| @ |-----
 
-# -- Spawn functions
+# -- Spawn functions : move to utils
 func spawn_randomly(n, entity_list, what, type, xbor, ybor):
 	for i in range(n):
 		randomize()
@@ -518,6 +519,7 @@ func draw_currents(c, r):
 	
 	draw_line(player.position, player.position + get_current(currents, currents_resolution, player.position) * current_force, palette[1])
 
+# TODO : Move to debug
 func _draw():
 #	draw_currents(currents, currents_resolution)
 	pass

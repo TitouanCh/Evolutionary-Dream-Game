@@ -44,9 +44,9 @@ _global_script_class_icons={
 
 [application]
 
-config/name="Godotgo 3"
+config/name="Evolutionary Dream"
 run/main_scene="res://bin/scenes/meta/flask.tscn"
-config/icon="res://icon.png"
+config/icon="res://assets/art/cover.png"
 
 [autoload]
 
